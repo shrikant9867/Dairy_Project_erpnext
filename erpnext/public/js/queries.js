@@ -13,13 +13,13 @@ $.extend(erpnext.queries, {
 	},
 
 	customer: function(filters) {
-		user_type = get_session_user_type(filters)
-		if(filters.doctype == "Delivery Note" && user_type == 'Camp Office'){
-			return { query: "dairy_erp.customization.customization.user_query_dn" };
-		}
-		if(filters.doctype == "Sales Order" && user_type == 'VLCC'){
 			//added by khushal(custom)
-		return { query: "dairy_erp.customization.customization.user_query" };
+		user_type = get_session_user_type(filters)
+		if(filters.doctype == "Sales Order" && user_type == 'VLCC'){
+			return { query: "dairy_erp.customization.customization.user_query" };
+		}
+		else if(filters.doctype == "Delivery Note" && (user_type == 'VLCC' || user_type == 'Camp Office')){
+			return { query: "dairy_erp.customization.customization.user_query_dn" };
 		}
 		else{
 			return { query: "erpnext.controllers.queries.customer_query" };

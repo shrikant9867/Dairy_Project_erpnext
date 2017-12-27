@@ -35,7 +35,7 @@ class SalesOrder(SellingController):
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
 		self.validate_uom_is_integer("uom", "qty")
 		self.validate_for_items()
-		self.validate_warehouse()
+		# self.validate_warehouse()
 		self.validate_drop_ship()
 
 		from erpnext.stock.doctype.packed_item.packed_item import make_packing_list
@@ -129,14 +129,12 @@ class SalesOrder(SellingController):
 	def validate_warehouse(self):
 		super(SalesOrder, self).validate_warehouse()
 
-		for d in self.get("items"):
-			if frappe.db.get_value("User",frappe.session.user,"operator_type") == 'Camp Office':
-				d.warehouse = frappe.db.get_value("Village Level Collection Centre",{"name":self.get("company")},"warehouse")
-				# if (frappe.db.get_value("Item", d.item_code, "is_stock_item") == 1 or
-				# 	(self.has_product_bundle(d.item_code) and self.product_bundle_has_stock_item(d.item_code))) \
-				# 	and not d.warehouse and not cint(d.delivered_by_supplier):
-				# 	frappe.throw(_("Delivery warehouse required for stock item {0}").format(d.item_code),
-				# 		WarehouseRequired)
+		for d in self.get("items"):			
+			if (frappe.db.get_value("Item", d.item_code, "is_stock_item") == 1 or
+				(self.has_product_bundle(d.item_code) and self.product_bundle_has_stock_item(d.item_code))) \
+				and not d.warehouse and not cint(d.delivered_by_supplier):
+				frappe.throw(_("Delivery warehouse required for stock item {0}").format(d.item_code),
+					WarehouseRequired)
 
 	def validate_with_previous_doc(self):
 		super(SalesOrder, self).validate_with_previous_doc({
