@@ -18,7 +18,6 @@ frappe.ui.form.on("Sales Order", {
 		erpnext.queries.setup_queries(frm, "Warehouse", function() {
 			return erpnext.queries.warehouse(frm.doc);
 		});
-
 		frm.set_query('project', function(doc, cdt, cdn) {
 			return {
 				query: "erpnext.controllers.queries.get_project_name",
@@ -88,7 +87,29 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 							function() { me.close_sales_order() }, __("Status"))
 					}
 				}
+				frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "User",
+							filters: {"name": frappe.session.user},
+							fieldname: "operator_type"
+						},
+						async:false,
+						callback: function(r){
+							if(r.message){	
+							me.user = r.message.operator_type			
+							}
+						}
+				});
+				if(me.user == 'VLCC') {
+					if(!doc.order_type || ["Sales", "Shopping Cart"].indexOf(doc.order_type)!==-1
+					&& flt(doc.per_delivered, 2) < 100) {
+					this.frm.add_custom_button(__('Material Request'),
+						function() { me.make_material_request() }, __("Make"));
+					}
 
+				}
+				else{
 				// delivery note
 				if(flt(doc.per_delivered, 2) < 100 && ["Sales", "Shopping Cart"].indexOf(doc.order_type)!==-1 && allow_delivery) {
 					this.frm.add_custom_button(__('Delivery'),
@@ -147,7 +168,9 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 					}, __("Make"))
 				}
 
-			} else {
+			} 
+		}
+			else {
 				if (this.frm.has_perm("submit")) {
 					// un-close
 					this.frm.add_custom_button(__('Re-open'), function() {

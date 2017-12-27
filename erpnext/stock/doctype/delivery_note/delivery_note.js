@@ -20,7 +20,7 @@ frappe.ui.form.on("Delivery Note", {
 			function(doc) {
 				return (doc.docstatus==1 || doc.qty<=doc.actual_qty) ? "green" : "orange"
 			})
-
+		frm.set_query('customer',erpnext.queries.customer(frm.doc));
 		erpnext.queries.setup_warehouse_query(frm);
 
 		frm.set_query('project', function(doc) {
@@ -114,7 +114,6 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 			if (!doc.__islocal && doc.docstatus==1) {
 				this.frm.page.set_inner_btn_group_as_primary(__("Make"));
 			}
-
 			if (this.frm.doc.docstatus===0) {
 				this.frm.add_custom_button(__('Sales Order'),
 					function() {
@@ -123,7 +122,8 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 							source_doctype: "Sales Order",
 							target: me.frm,
 							setters: {
-								customer: me.frm.doc.customer || undefined,
+								company: "",
+								customer:me.frm.doc.customer || undefined
 							},
 							get_query_filters: {
 								docstatus: 1,
@@ -135,6 +135,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 						})
 					}, __("Get items from"));
 			}
+
 		}
 
 		if (doc.docstatus==1) {

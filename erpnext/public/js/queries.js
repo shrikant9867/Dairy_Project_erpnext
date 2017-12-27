@@ -12,8 +12,18 @@ $.extend(erpnext.queries, {
 		return { query: "erpnext.controllers.queries.lead_query" };
 	},
 
-	customer: function() {
-		return { query: "erpnext.controllers.queries.customer_query" };
+	customer: function(filters) {
+		user_type = get_session_user_type(filters)
+		if(filters.doctype == "Delivery Note" && user_type == 'Camp Office'){
+			return { query: "dairy_erp.customization.customization.user_query_dn" };
+		}
+		if(filters.doctype == "Sales Order" && user_type == 'VLCC'){
+			//added by khushal(custom)
+		return { query: "dairy_erp.customization.customization.user_query" };
+		}
+		else{
+			return { query: "erpnext.controllers.queries.customer_query" };
+		}
 	},
 
 	supplier: function() {
@@ -23,7 +33,7 @@ $.extend(erpnext.queries, {
 	item: function(filters) {
 		var args = { query: "erpnext.controllers.queries.item_query" };
 		if(filters) args["filters"] = filters;
-		return args;
+		return args;		
 	},
 
 	bom: function() {
@@ -156,4 +166,25 @@ erpnext.queries.setup_warehouse_query = function(frm){
 		}
 		return filters
 	});
+}
+
+get_session_user_type = function(doc) {
+//added custom khushal
+var user;
+	frappe.call({
+				method: "frappe.client.get_value",
+				args: {
+					doctype: "User",
+					filters: {"name": frappe.session.user},
+					fieldname: "operator_type"
+				},
+				async:false,
+				callback: function(r){
+					if(r.message){	
+					user = r.message.operator_type			
+					}
+				}
+	});
+
+	return user
 }

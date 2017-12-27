@@ -179,6 +179,19 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 
 	add_from_mappers: function() {
 		var me = this;
+		frappe.call({
+			method: "frappe.client.get_value",
+			args: {
+				doctype: "User",
+				filters: {"name": frappe.session.user},
+				fieldname: "branch_office"
+			},
+			callback: function(r){
+				if(r.message){
+					me.branch_office = r.message.branch_office
+				}
+			}
+		});
 		this.frm.add_custom_button(__('Material Request'),
 			function() {
 				erpnext.utils.map_current_doc({
@@ -186,7 +199,8 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 					source_doctype: "Material Request",
 					target: me.frm,
 					setters: {
-						company: me.frm.doc.company
+						camp_office:me.branch_office,
+						company: ""
 					},
 					get_query_filters: {
 						material_request_type: "Purchase",
