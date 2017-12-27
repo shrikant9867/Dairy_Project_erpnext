@@ -60,43 +60,47 @@ def lead_query(doctype, txt, searchfield, start, page_len, filters):
 
  # searches for customer
 def customer_query(doctype, txt, searchfield, start, page_len, filters):
-	conditions = []
-	cust_master_name = frappe.defaults.get_user_default("cust_master_name")
-
-	if cust_master_name == "Customer Name":
-		fields = ["name", "customer_group", "territory"]
+	#changes by chaitrali
+	if frappe.db.get_value("User",frappe.session.user,"operator_type") == 'VLCC':
+		return frappe.db.sql("""select name from tabCustomer where customer_group = 'Farmer'""")
 	else:
-		fields = ["name", "customer_name", "customer_group", "territory"]
+		conditions = []
+		cust_master_name = frappe.defaults.get_user_default("cust_master_name")
 
-	meta = frappe.get_meta("Customer")
-	searchfields = meta.get_search_fields()
-	searchfields = searchfields + [f for f in [searchfield or "name", "customer_name"] \
-			if not f in searchfields]
-	fields = fields + [f for f in searchfields if not f in fields]
+		if cust_master_name == "Customer Name":
+			fields = ["name", "customer_group", "territory"]
+		else:
+			fields = ["name", "customer_name", "customer_group", "territory"]
 
-	fields = ", ".join(fields)
-	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
+		meta = frappe.get_meta("Customer")
+		searchfields = meta.get_search_fields()
+		searchfields = searchfields + [f for f in [searchfield or "name", "customer_name"] \
+				if not f in searchfields]
+		fields = fields + [f for f in searchfields if not f in fields]
 
-	return frappe.db.sql("""select {fields} from `tabCustomer`
-		where docstatus < 2
-			and ({scond}) and disabled=0
-			{fcond} {mcond}
-		order by
-			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
-			if(locate(%(_txt)s, customer_name), locate(%(_txt)s, customer_name), 99999),
-			idx desc,
-			name, customer_name
-		limit %(start)s, %(page_len)s""".format(**{
-			"fields": fields,
-			"scond": searchfields,
-			"mcond": get_match_cond(doctype),
-			"fcond": get_filters_cond(doctype, filters, conditions).replace('%', '%%'),
-		}), {
-			'txt': "%%%s%%" % txt,
-			'_txt': txt.replace("%", ""),
-			'start': start,
-			'page_len': page_len
-		})
+		fields = ", ".join(fields)
+		searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
+
+		return frappe.db.sql("""select {fields} from `tabCustomer`
+			where docstatus < 2
+				and ({scond}) and disabled=0
+				{fcond} {mcond}
+			order by
+				if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
+				if(locate(%(_txt)s, customer_name), locate(%(_txt)s, customer_name), 99999),
+				idx desc,
+				name, customer_name
+			limit %(start)s, %(page_len)s""".format(**{
+				"fields": fields,
+				"scond": searchfields,
+				"mcond": get_match_cond(doctype),
+				"fcond": get_filters_cond(doctype, filters, conditions).replace('%', '%%'),
+			}), {
+				'txt': "%%%s%%" % txt,
+				'_txt': txt.replace("%", ""),
+				'start': start,
+				'page_len': page_len
+			})
 
 # searches for supplier
 def supplier_query(doctype, txt, searchfield, start, page_len, filters):

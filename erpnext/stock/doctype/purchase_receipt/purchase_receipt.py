@@ -267,6 +267,7 @@ class PurchaseReceipt(BuyingController):
 			# Backward compatibility:
 			# If expenses_included_in_valuation account has been credited in against PI
 			# and charges added via Landed Cost Voucher,
+
 			# post valuation related charges on "Stock Received But Not Billed"
 
 			negative_expense_booked_in_pi = frappe.db.sql("""select name from `tabPurchase Invoice Item` pi
