@@ -86,6 +86,23 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 							}
 						})
 					}, __("Get items from"));
+				this.frm.add_custom_button(__('Material Request'),
+					function() {
+						erpnext.utils.map_current_doc({
+							method: "erpnext.stock.doctype.material_request.material_request.make_purchase_receipt",
+							source_doctype: "Material Request",
+							target: me.frm,
+							setters: {
+								company: "",
+								// camp_office:me.branch_office
+							},
+							get_query_filters: {
+								material_request_type: "Purchase",
+								docstatus: 1,
+								status: ["in", ["Ordered"]]
+							}
+						})
+					}, __("Get items from"));
 			}
 
 			if(this.frm.doc.docstatus == 1 && this.frm.doc.status!="Closed") {

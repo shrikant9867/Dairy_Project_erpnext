@@ -220,6 +220,65 @@ def update_item(obj, target, source_parent):
 	target.qty = flt(obj.qty) - flt(obj.ordered_qty)
 	target.stock_qty = target.qty
 
+def update_dn_item(obj, target, source_parent):
+	target.conversion_factor = 1
+
+@frappe.whitelist()
+def make_dn(source_name, target_doc=None):
+	def postprocess(source, target_doc):
+		set_missing_values(source, target_doc)
+
+	doclist = get_mapped_doc("Material Request", source_name, 	{
+		"Material Request": {
+			"doctype": "Delivery Note",
+			"validation": {
+				"docstatus": ["=", 1],
+				"material_request_type": ["=", "Purchase"]
+			}
+		},
+		"Material Request Item": {
+			"doctype": "Delivery Note Item",
+			"field_map": [
+				["name", "material_request_item"],
+				["parent", "material_request"],
+				["uom", "stock_uom"],
+				["uom", "uom"]
+			],
+			"postprocess": update_dn_item,
+			# "condition": lambda doc: doc.ordered_qty < doc.qty
+		}
+	}, target_doc, postprocess)
+
+	return doclist
+
+@frappe.whitelist()
+def make_purchase_receipt(source_name, target_doc=None):
+	def postprocess(source, target_doc):
+		set_missing_values(source, target_doc)
+
+	doclist = get_mapped_doc("Material Request", source_name, 	{
+		"Material Request": {
+			"doctype": "Purchase Receipt",
+			"validation": {
+				"docstatus": ["=", 1],
+				"material_request_type": ["=", "Purchase"]
+			}
+		},
+		"Material Request Item": {
+			"doctype": "Purchase Receipt Item",
+			"field_map": [
+				["name", "material_request_item"],
+				["parent", "material_request"],
+				["uom", "stock_uom"],
+				["uom", "uom"]
+			],
+			"postprocess": update_dn_item,
+			# "condition": lambda doc: doc.ordered_qty < doc.qty
+		}
+	}, target_doc, postprocess)
+
+	return doclist
+
 @frappe.whitelist()
 def make_purchase_order(source_name, target_doc=None):
 	def postprocess(source, target_doc):
@@ -247,6 +306,7 @@ def make_purchase_order(source_name, target_doc=None):
 	}, target_doc, postprocess)
 
 	return doclist
+
 
 @frappe.whitelist()
 def make_request_for_quotation(source_name, target_doc=None):

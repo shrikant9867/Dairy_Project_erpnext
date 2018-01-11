@@ -113,7 +113,43 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 			if (!doc.__islocal && doc.docstatus==1) {
 				this.frm.page.set_inner_btn_group_as_primary(__("Make"));
 			}
-			if (this.frm.doc.docstatus===0) {
+		
+			frappe.call({
+				method: "frappe.client.get_value",
+				async : false,
+				args: {
+					doctype: "User",
+					filters: {"name": frappe.session.user},
+					fieldname: ["branch_office","operator_type"]
+				},
+				callback: function(r){
+					if(r.message){
+						me.branch_office = r.message.branch_office
+						me.operator_type =r.message.operator_type
+					}
+				}
+			});
+			if (this.frm.doc.docstatus===0 && me.operator_type == "Camp Office") {
+				this.frm.add_custom_button(__('Material Request'),
+					function() {
+						erpnext.utils.map_current_doc({
+							method: "erpnext.stock.doctype.material_request.material_request.make_dn",
+							source_doctype: "Material Request",
+							target: me.frm,
+							setters: {
+								company: "",
+								camp_office:me.branch_office
+							},
+							get_query_filters: {
+								material_request_type: "Purchase",
+								docstatus: 1,
+								status: ["in", ["Ordered","Partially Delivered","Pending"]]
+							}
+						})
+					}, __("Get items from"));
+			}
+			else 
+				if (this.frm.doc.docstatus===0) {
 				this.frm.add_custom_button(__('Sales Order'),
 					function() {
 						erpnext.utils.map_current_doc({
