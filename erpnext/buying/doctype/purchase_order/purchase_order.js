@@ -7,10 +7,13 @@ frappe.provide("erpnext.buying");
 
 frappe.ui.form.on("Purchase Order", {
 	setup: function(frm) {
+		if (frm.is_dropship) {
+
 		frm.custom_make_buttons = {
 			'Purchase Receipt': 'Receipt',
 			'Purchase Invoice': 'Invoice',
 			'Stock Entry': 'Material to Supplier'
+		}
 		}
 	},
 
@@ -95,6 +98,8 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 		}
 
 		if(doc.docstatus == 1 && doc.status != "Closed") {
+			if(!doc.is_dropship){
+				
 			if(flt(doc.per_received, 2) < 100 && allow_receipt) {
 				cur_frm.add_custom_button(__('Receipt'), this.make_purchase_receipt, __("Make"));
 
@@ -119,6 +124,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 			}
 			cur_frm.page.set_inner_btn_group_as_primary(__("Make"));
 		}
+			}
 	},
 
 	get_items_from_open_material_requests: function() {
@@ -199,14 +205,13 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 					source_doctype: "Material Request",
 					target: me.frm,
 					setters: {
-						camp_office:me.branch_office,
-						company: ""
+						camp_office:me.branch_office || undefined,
+						company: undefined
 					},
 					get_query_filters: {
 						material_request_type: "Purchase",
 						docstatus: 1,
-						status: ["!=", "Stopped"],
-						per_ordered: ["<", 99.99],
+						status: ["in", ["Pending","Partially ordered"]]
 					}
 				})
 			}, __("Add items from"));

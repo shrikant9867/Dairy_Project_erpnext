@@ -62,6 +62,16 @@ class DeliveryNote(SellingController):
 			'target_parent_dt': 'Sales Order',
 			'source_field': '-1 * qty',
 			'extra_cond': """ and exists (select name from `tabDelivery Note` where name=`tabDelivery Note Item`.parent and is_return=1)"""
+		},
+		{
+			'source_dt': 'Delivery Note Item',
+			'target_dt': 'Material Request Item',
+			'join_field': 'material_request',
+			'target_field': 'qty',
+			'target_parent_dt': 'Material Request',
+			'target_parent_field': 'per_delivered',
+			'target_ref_field': 'qty',
+			'source_field': 'qty'
 		}]
 
 	def before_print(self):
