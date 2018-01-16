@@ -20,7 +20,6 @@ frappe.ui.form.on("Delivery Note", {
 			function(doc) {
 				return (doc.docstatus==1 || doc.qty<=doc.actual_qty) ? "green" : "orange"
 			})
-		frm.set_query('customer',erpnext.queries.customer(frm.doc));
 		erpnext.queries.setup_warehouse_query(frm);
 
 		frm.set_query('project', function(doc) {
