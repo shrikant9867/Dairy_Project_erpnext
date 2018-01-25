@@ -93,13 +93,13 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 							source_doctype: "Material Request",
 							target: me.frm,
 							setters: {
-								company: "",
+								company: me.frm.doc.company,
 								// camp_office:me.branch_office
 							},
 							get_query_filters: {
 								material_request_type: "Purchase",
 								docstatus: 1,
-								status: ["in", ["Ordered"]]
+								status: ["in", ["Ordered","Partially Delivered"]]
 							}
 						})
 					}, __("Get items from"));
