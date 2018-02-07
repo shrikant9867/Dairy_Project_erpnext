@@ -100,33 +100,49 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 
 # searches for supplier
 def supplier_query(doctype, txt, searchfield, start, page_len, filters):
+	
+	user_doc = frappe.db.get_value("User",{"name":frappe.session.user},['operator_type','company','branch_office'], as_dict =1)
+
 	supp_master_name = frappe.defaults.get_user_default("supp_master_name")
 	if supp_master_name == "Supplier Name":
-		fields = ["name", "supplier_type"]
+		fields = ["s.name", "s.supplier_type"]
 	else:
-		fields = ["name", "supplier_name", "supplier_type"]
+		fields = ["s.name", "s.supplier_name", "s.supplier_type"]
 	fields = ", ".join(fields)
+	conditions = ""
+	if user_doc.get('operator_type') == 'Camp Office':
+		supp_type = (str('Dairy Local'),str('Vlcc Type'))
+		conditions = "and s.supplier_type in {0} group by s.name".format(supp_type)
 
-	return frappe.db.sql("""select {field} from `tabSupplier`
-		where docstatus < 2
-			and ({key} like %(txt)s
-				or supplier_name like %(txt)s) and disabled=0
-			{mcond}
+	if user_doc.get('operator_type') == 'VLCC':
+		supp_type = (str('VLCC Local'),str('Dairy Type'))
+		conditions = "and s.supplier_type in {0} group by s.name".format(supp_type)
+		
+	supp_query = frappe.db.sql("""select {field} from `tabSupplier` s ,`tabParty Account` p
+		where s.docstatus < 2
+			and (s.{key} like %(txt)s
+				or s.supplier_name like %(txt)s) and s.disabled=0
+			{mcond} and p.parent = s.name and p.company = '{user_comp}' {conditions}
 		order by
-			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
-			if(locate(%(_txt)s, supplier_name), locate(%(_txt)s, supplier_name), 99999),
-			idx desc,
-			name, supplier_name
+			if(locate(%(_txt)s, s.name), locate(%(_txt)s, s.name), 99999),
+			if(locate(%(_txt)s, s.supplier_name), locate(%(_txt)s, s.supplier_name), 99999),
+			s.idx desc,
+			s.name, s.supplier_name
 		limit %(start)s, %(page_len)s """.format(**{
 			'field': fields,
 			'key': searchfield,
-			'mcond':get_match_cond(doctype)
+			'mcond':get_match_cond(doctype),
+			'user_comp':user_doc.get('company'),
+			'conditions':conditions
 		}), {
 			'txt': "%%%s%%" % txt,
 			'_txt': txt.replace("%", ""),
 			'start': start,
 			'page_len': page_len
 		})
+
+	return supp_query
+
 
 def tax_account_query(doctype, txt, searchfield, start, page_len, filters):
 	tax_accounts = frappe.db.sql("""select name, parent_account	from tabAccount

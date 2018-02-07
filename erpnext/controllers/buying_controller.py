@@ -304,8 +304,8 @@ class BuyingController(StockController):
 				if self.rejected_warehouse:
 					d.rejected_warehouse = self.rejected_warehouse
 
-				if not d.rejected_warehouse:
-					frappe.throw(_("Row #{0}: Rejected Warehouse is mandatory against rejected Item {1}").format(d.idx, d.item_code))
+				# if not d.rejected_warehouse:
+				# 	frappe.throw(_("Row #{0}: Rejected Warehouse is mandatory against rejected Item {1}").format(d.idx, d.item_code))
 
 	# validate accepted and rejected qty
 	def validate_accepted_rejected_qty(self):

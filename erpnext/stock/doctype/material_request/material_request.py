@@ -222,6 +222,7 @@ def update_item(obj, target, source_parent):
 
 def update_dn_item(obj, target, source_parent):
 	target.conversion_factor = 1
+	target.received_qty = obj.qty
 
 @frappe.whitelist()
 def make_dn(source_name, target_doc=None):
