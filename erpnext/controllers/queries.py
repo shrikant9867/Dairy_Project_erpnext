@@ -60,6 +60,9 @@ def lead_query(doctype, txt, searchfield, start, page_len, filters):
 
  # searches for customer
 def customer_query(doctype, txt, searchfield, start, page_len, filters):
+
+	user_doc = frappe.db.get_value("User",{"name":frappe.session.user},['operator_type','company','branch_office'], as_dict =1)
+
 	conditions = []
 	cust_master_name = frappe.defaults.get_user_default("cust_master_name")
 
@@ -77,10 +80,16 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 	fields = ", ".join(fields)
 	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
 
+	if user_doc.get('operator_type') == 'Camp Office':
+
+		customer = frappe.db.get_values("Village Level Collection Centre",{"camp_office":user_doc.get('branch_office')},"name",as_dict=1)
+		customer_list = [str(cust.get('name')) for cust in customer]
+		customer_cond = "and customer_group = 'Vlcc' and name in {0}".format(tuple(customer_list))
+
 	return frappe.db.sql("""select {fields} from `tabCustomer`
 		where docstatus < 2
 			and ({scond}) and disabled=0
-			{fcond} {mcond}
+			{fcond} {mcond} {customer_cond}
 		order by
 			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
 			if(locate(%(_txt)s, customer_name), locate(%(_txt)s, customer_name), 99999),
@@ -91,6 +100,7 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 			"scond": searchfields,
 			"mcond": get_match_cond(doctype),
 			"fcond": get_filters_cond(doctype, filters, conditions).replace('%', '%%'),
+			"customer_cond":customer_cond
 		}), {
 			'txt': "%%%s%%" % txt,
 			'_txt': txt.replace("%", ""),
@@ -112,7 +122,7 @@ def supplier_query(doctype, txt, searchfield, start, page_len, filters):
 	conditions = ""
 	if user_doc.get('operator_type') == 'Camp Office':
 		supp_type = (str('Dairy Local'),str('Vlcc Type'))
-		conditions = "and s.supplier_type in {0} group by s.name".format(supp_type)
+		conditions = "and s.supplier_type in {0} and s.camp_office = '{1}' group by s.name".format(supp_type,user_doc.get('branch_office'))
 
 	if user_doc.get('operator_type') == 'VLCC':
 		supp_type = (str('VLCC Local'),str('Dairy Type'))
