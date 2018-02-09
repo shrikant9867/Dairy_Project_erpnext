@@ -62,7 +62,7 @@ def lead_query(doctype, txt, searchfield, start, page_len, filters):
 def customer_query(doctype, txt, searchfield, start, page_len, filters):
 
 	user_doc = frappe.db.get_value("User",{"name":frappe.session.user},['operator_type','company','branch_office'], as_dict =1)
-
+	customer_cond = ""
 	conditions = []
 	cust_master_name = frappe.defaults.get_user_default("cust_master_name")
 
@@ -122,17 +122,17 @@ def supplier_query(doctype, txt, searchfield, start, page_len, filters):
 	conditions = ""
 	if user_doc.get('operator_type') == 'Camp Office':
 		supp_type = (str('Dairy Local'),str('Vlcc Type'))
-		conditions = "and s.supplier_type in {0} and s.camp_office = '{1}' group by s.name".format(supp_type,user_doc.get('branch_office'))
+		conditions = "and s.supplier_type in {0} and s.camp_office = '{1}' and p.company = '{2}'".format(supp_type,user_doc.get('branch_office'),user_doc.get('company'))
 
 	if user_doc.get('operator_type') == 'VLCC':
 		supp_type = (str('VLCC Local'),str('Dairy Type'))
-		conditions = "and s.supplier_type in {0} group by s.name".format(supp_type)
+		conditions = "and s.supplier_type in {0}".format(supp_type)
 		
 	supp_query = frappe.db.sql("""select {field} from `tabSupplier` s ,`tabParty Account` p
 		where s.docstatus < 2
 			and (s.{key} like %(txt)s
 				or s.supplier_name like %(txt)s) and s.disabled=0
-			{mcond} and p.parent = s.name and p.company = '{user_comp}' {conditions}
+			{mcond} and p.parent = s.name {conditions} group by s.name
 		order by
 			if(locate(%(_txt)s, s.name), locate(%(_txt)s, s.name), 99999),
 			if(locate(%(_txt)s, s.supplier_name), locate(%(_txt)s, s.supplier_name), 99999),
@@ -142,7 +142,6 @@ def supplier_query(doctype, txt, searchfield, start, page_len, filters):
 			'field': fields,
 			'key': searchfield,
 			'mcond':get_match_cond(doctype),
-			'user_comp':user_doc.get('company'),
 			'conditions':conditions
 		}), {
 			'txt': "%%%s%%" % txt,
