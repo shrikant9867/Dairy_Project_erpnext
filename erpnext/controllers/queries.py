@@ -60,9 +60,6 @@ def lead_query(doctype, txt, searchfield, start, page_len, filters):
 
  # searches for customer
 def customer_query(doctype, txt, searchfield, start, page_len, filters):
-
-	user_doc = frappe.db.get_value("User",{"name":frappe.session.user},['operator_type','company','branch_office'], as_dict =1)
-	customer_cond = ""
 	conditions = []
 	cust_master_name = frappe.defaults.get_user_default("cust_master_name")
 
@@ -80,16 +77,10 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 	fields = ", ".join(fields)
 	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
 
-	if user_doc.get('operator_type') == 'Camp Office':
-
-		customer = frappe.db.get_values("Village Level Collection Centre",{"camp_office":user_doc.get('branch_office')},"name",as_dict=1)
-		customer_list = [str(cust.get('name')) for cust in customer]
-		customer_cond = "and customer_group = 'Vlcc' and name in {0}".format(tuple(customer_list))
-
 	return frappe.db.sql("""select {fields} from `tabCustomer`
 		where docstatus < 2
 			and ({scond}) and disabled=0
-			{fcond} {mcond} {customer_cond}
+			{fcond} {mcond}
 		order by
 			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
 			if(locate(%(_txt)s, customer_name), locate(%(_txt)s, customer_name), 99999),
@@ -100,7 +91,6 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 			"scond": searchfields,
 			"mcond": get_match_cond(doctype),
 			"fcond": get_filters_cond(doctype, filters, conditions).replace('%', '%%'),
-			"customer_cond":customer_cond
 		}), {
 			'txt': "%%%s%%" % txt,
 			'_txt': txt.replace("%", ""),
@@ -110,48 +100,33 @@ def customer_query(doctype, txt, searchfield, start, page_len, filters):
 
 # searches for supplier
 def supplier_query(doctype, txt, searchfield, start, page_len, filters):
-	
-	user_doc = frappe.db.get_value("User",{"name":frappe.session.user},['operator_type','company','branch_office'], as_dict =1)
-
 	supp_master_name = frappe.defaults.get_user_default("supp_master_name")
 	if supp_master_name == "Supplier Name":
-		fields = ["s.name", "s.supplier_type"]
+		fields = ["name", "supplier_type"]
 	else:
-		fields = ["s.name", "s.supplier_name", "s.supplier_type"]
+		fields = ["name", "supplier_name", "supplier_type"]
 	fields = ", ".join(fields)
-	conditions = ""
-	if user_doc.get('operator_type') == 'Camp Office':
-		supp_type = (str('Dairy Local'),str('Vlcc Type'))
-		conditions = "and s.supplier_type in {0} and s.camp_office = '{1}' and p.company = '{2}'".format(supp_type,user_doc.get('branch_office'),user_doc.get('company'))
 
-	if user_doc.get('operator_type') == 'VLCC':
-		supp_type = (str('VLCC Local'),str('Dairy Type'))
-		conditions = "and s.supplier_type in {0}".format(supp_type)
-		
-	supp_query = frappe.db.sql("""select {field} from `tabSupplier` s ,`tabParty Account` p
-		where s.docstatus < 2
-			and (s.{key} like %(txt)s
-				or s.supplier_name like %(txt)s) and s.disabled=0
-			{mcond} and p.parent = s.name {conditions} group by s.name
+	return frappe.db.sql("""select {field} from `tabSupplier`
+		where docstatus < 2
+			and ({key} like %(txt)s
+				or supplier_name like %(txt)s) and disabled=0
+			{mcond}
 		order by
-			if(locate(%(_txt)s, s.name), locate(%(_txt)s, s.name), 99999),
-			if(locate(%(_txt)s, s.supplier_name), locate(%(_txt)s, s.supplier_name), 99999),
-			s.idx desc,
-			s.name, s.supplier_name
+			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999),
+			if(locate(%(_txt)s, supplier_name), locate(%(_txt)s, supplier_name), 99999),
+			idx desc,
+			name, supplier_name
 		limit %(start)s, %(page_len)s """.format(**{
 			'field': fields,
 			'key': searchfield,
-			'mcond':get_match_cond(doctype),
-			'conditions':conditions
+			'mcond':get_match_cond(doctype)
 		}), {
 			'txt': "%%%s%%" % txt,
 			'_txt': txt.replace("%", ""),
 			'start': start,
 			'page_len': page_len
 		})
-
-	return supp_query
-
 
 def tax_account_query(doctype, txt, searchfield, start, page_len, filters):
 	tax_accounts = frappe.db.sql("""select name, parent_account	from tabAccount
