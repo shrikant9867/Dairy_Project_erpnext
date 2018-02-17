@@ -11,8 +11,8 @@ $(document).bind('toolbar_setup', function() {
 		href="https://discuss.erpnext.com">Feedback</a></p>'
 
 
-	$('.navbar-home').html('<img class="erpnext-icon" src="'+
-			frappe.urllib.get_base_url()+'/assets/erpnext/images/erp-icon.svg" />');
+	$('.navbar-home').html('<img class="erpnext-icon" style="height: 35px; width: 75px;"\
+		src="'+frappe.urllib.get_base_url()+'/assets/dairy_erp/images/stellapps_logo.png" />');
 
 	$('[data-link="docs"]').attr("href", "https://frappe.github.io/erpnext/")
 	$('[data-link="issues"]').attr("href", "https://github.com/frappe/erpnext/issues")
