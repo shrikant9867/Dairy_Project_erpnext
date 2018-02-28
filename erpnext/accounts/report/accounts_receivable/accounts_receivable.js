@@ -29,6 +29,12 @@ frappe.query_reports["Accounts Receivable"] = {
 			"options": "\nFixed Days\nLast Day of the Next Month"
 		},
 		{
+			"fieldname":"account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account"
+		},
+		{
 			"fieldtype": "Break",
 		},
 		{
