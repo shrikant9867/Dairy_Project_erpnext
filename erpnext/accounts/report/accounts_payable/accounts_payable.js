@@ -30,6 +30,12 @@ frappe.query_reports["Accounts Payable"] = {
 			"default": "Posting Date"
 		},
 		{
+			"fieldname":"account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account"
+		},
+		{
 			"fieldtype": "Break",
 		},
 		{
