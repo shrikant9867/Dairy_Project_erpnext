@@ -41,6 +41,27 @@ frappe.ui.form.on('Stock Entry', {
 	},
 
 	refresh: function(frm) {
+
+		if (frm.doc.docstatus===0) {
+				frm.add_custom_button(__('Material Request'),
+					function() {
+						console.log()
+						erpnext.utils.map_current_doc({
+							method: "erpnext.stock.doctype.material_request.material_request.make_se",
+							source_doctype: "Material Request",
+							target: me.frm,
+							setters: {
+								// company: me.frm.doc.customer || undefined
+								camp_office:me.frm.doc.camp_office
+							},
+							get_query_filters: {
+								material_request_type: "Purchase",
+								docstatus: 1,
+								status: ["in", ["Ordered","Partially Delivered","Pending"]]
+							}
+						})
+					}, __("Get items from"));
+			}
 		if(!frm.doc.docstatus) {
 			frm.add_custom_button(__('Make Material Request'), function() {
 				frappe.model.with_doctype('Material Request', function() {
@@ -582,7 +603,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 
 	supplier: function(doc) {
-		erpnext.utils.get_party_details(this.frm, null, null, null);
+		// erpnext.utils.get_party_details(this.frm, null, null, null);
 	}
 });
 

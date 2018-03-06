@@ -135,19 +135,22 @@ class StockEntry(StockController):
 				d.t_warehouse = self.to_warehouse
 
 			if not (d.s_warehouse or d.t_warehouse):
-				frappe.throw(_("Atleast one warehouse is mandatory"))
+				pass
+				# frappe.throw(_("Atleast one warehouse is mandatory"))
 
 			if self.purpose in source_mandatory and not d.s_warehouse:
 				if self.from_warehouse:
 					d.s_warehouse = self.from_warehouse
 				else:
-					frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
+					pass
+					# frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
 			if self.purpose in target_mandatory and not d.t_warehouse:
 				if self.to_warehouse:
 					d.t_warehouse = self.to_warehouse
 				else:
-					frappe.throw(_("Target warehouse is mandatory for row {0}").format(d.idx))
+					pass
+					# frappe.throw(_("Target warehouse is mandatory for row {0}").format(d.idx))
 
 			if self.purpose in ["Manufacture", "Repack"]:
 				if validate_for_manufacture_repack:
@@ -166,7 +169,8 @@ class StockEntry(StockController):
 							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
 			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and not self.purpose == "Material Transfer for Manufacture":
-				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
+				pass
+				# frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
 
 	def validate_production_order(self):
 		if self.purpose in ("Manufacture", "Material Transfer for Manufacture"):
@@ -791,8 +795,9 @@ class StockEntry(StockController):
 					["item_code", "warehouse", "idx"], as_dict=True)
 				if mreq_item.item_code != item.item_code or \
 				mreq_item.warehouse != (item.s_warehouse if self.purpose== "Material Issue" else item.t_warehouse):
-					frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
-						frappe.MappingMismatchError)
+					pass
+					# frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
+					# 	frappe.MappingMismatchError)
 
 	def validate_batch(self):
 		if self.purpose in ["Material Transfer for Manufacture", "Manufacture", "Repack", "Subcontract"]:
