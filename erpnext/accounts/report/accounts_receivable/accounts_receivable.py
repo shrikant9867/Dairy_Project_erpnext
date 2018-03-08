@@ -288,6 +288,9 @@ class ReceivablePayableReport(object):
 				conditions.append("party in (select name from tabCustomer where credit_days_based_on=%s)")
 				values.append(self.filters.get("credit_days_based_on"))
 
+		if self.filters.account:
+			conditions.append("account= %s")
+			values.append(self.filters.get('account'))
 		return " and ".join(conditions), values
 
 	def get_gl_entries_for(self, party, party_type, against_voucher_type, against_voucher):

@@ -29,6 +29,12 @@ frappe.query_reports["Accounts Receivable"] = {
 			"options": "\nFixed Days\nLast Day of the Next Month"
 		},
 		{
+			"fieldname":"account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account"
+		},
+		{
 			"fieldtype": "Break",
 		},
 		{
@@ -72,5 +78,14 @@ frappe.query_reports["Accounts Receivable"] = {
 			var filters = report.get_values();
 			frappe.set_route('query-report', 'Accounts Receivable Summary', {company: filters.company});
 		});
+		// set default camp office income account as account
+		frappe.call({
+			method: "dairy_erp.customization.sales_invoice.sales_invoice.get_account_invoice",
+			callback: function(r) {
+				if(!r.exc && r.message) {
+					$('body').find("[data-fieldname=account]").val(r.message.income_account).prop("disabled",true)
+				}
+			}
+		})
 	}
 }

@@ -137,7 +137,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 							source_doctype: "Material Request",
 							target: me.frm,
 							setters: {
-								company: "",
+								company: me.frm.doc.customer,
 								camp_office:me.branch_office
 							},
 							get_query_filters: {

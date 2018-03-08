@@ -1,4 +1,12 @@
 frappe.treeview_settings['Warehouse'] = {
+	//added session company to tree (customizaton)
+	onload: function (){
+		if(frappe.session.user != 'Administrator' && !in_list(frappe.user_roles,"Dairy Operator")){
+			frappe.db.get_value("User",frappe.session.user,"company", function(v){
+				$('body').find("[data-fieldname=company]").val(v['company']).prop("disabled",true)
+			})		
+		}
+	},
 	get_tree_nodes: "erpnext.stock.doctype.warehouse.warehouse.get_children",
 	add_tree_node: "erpnext.stock.doctype.warehouse.warehouse.add_node",
 	get_tree_root: false,

@@ -1,6 +1,14 @@
 frappe.provide("frappe.treeview_settings")
 
 frappe.treeview_settings["Account"] = {
+	//added session company to tree (customizaton)
+	onload: function (){
+		if(frappe.session.user != 'Administrator' && !in_list(frappe.user_roles,"Dairy Operator")){
+			frappe.db.get_value("User",frappe.session.user,"company", function(v){
+				$('body').find("[data-fieldname=company]").val(v['company']).prop("disabled",true)
+			})		
+		}
+	},
 	breadcrumbs: "Accounts",
 	title: __("Chart Of Accounts"),
 	get_tree_root: false,
