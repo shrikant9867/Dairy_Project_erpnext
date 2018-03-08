@@ -162,7 +162,7 @@ erpnext.utils.validate_mandatory = function(frm, label, value, trigger_on) {
 	if(!value) {
 		frm.doc[trigger_on] = "";
 		refresh_field(trigger_on);
-		frappe.msgprint(__("Please enter {0} first", [label]));
+		// frappe.msgprint(__("Please enter {0} first", [label]));
 		return false;
 	}
 	return true;
