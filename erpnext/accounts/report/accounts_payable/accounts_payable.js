@@ -65,5 +65,14 @@ frappe.query_reports["Accounts Payable"] = {
 			var filters = report.get_values();
 			frappe.set_route('query-report', 'Accounts Payable Summary', {company: filters.company});
 		});
+		// set default camp office expense account as account
+		frappe.call({
+			method: "dairy_erp.customization.sales_invoice.sales_invoice.get_account_invoice",
+			callback: function(r) {
+				if(!r.exc && r.message) {
+					$('body').find("[data-fieldname=account]").val(r.message.expense_account).prop("disabled",true)
+				}
+			}
+		})
 	}
 }
