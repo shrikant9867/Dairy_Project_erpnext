@@ -93,6 +93,9 @@ status_map = {
 		["Pending", "eval:self.status != 'Stopped' and self.per_ordered == 0 and self.docstatus == 1"],
 		["Partially Ordered", "eval:self.status != 'Stopped' and self.per_ordered < 100 and self.per_ordered > 0 and self.docstatus == 1"],
 		["Ordered", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
+		["Delivered", "eval:self.status != 'Stopped' and self.per_delivered == 100 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
+		["Closed", "eval:self.status != 'Stopped' and self.per_closed == 100 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
+		["Partially Delivered", "eval:self.status != 'Stopped' and self.per_delivered == 99.99 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
 		["Transferred", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Transfer'"],
 		["Issued", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Issue'"]
 	]

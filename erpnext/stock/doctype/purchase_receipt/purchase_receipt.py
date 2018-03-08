@@ -300,10 +300,8 @@ class PurchaseReceipt(BuyingController):
 				)
 
 				i += 1
-
 		warehouse_with_no_account = [x for x in warehouse_with_no_account if x is not None]
 		if warehouse_with_no_account:
-			print "___________________"
 			frappe.msgprint(_("No accounting entries for the following warehouses") + ": \n" +
 				"\n".join(warehouse_with_no_account))
 
