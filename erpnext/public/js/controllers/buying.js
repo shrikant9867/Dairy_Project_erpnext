@@ -117,12 +117,12 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 
 			if(!doc.is_return && this.validate_negative_quantity(cdt, cdn, item, ["qty", "received_qty"])){ return }
 
-			if(!item.rejected_qty && item.qty) {
+			// if(!item.rejected_qty && item.qty) {
 				item.received_qty = item.qty;
-			}
+			// }
 
 			frappe.model.round_floats_in(item, ["qty", "received_qty"]);
-			item.rejected_qty = flt(item.received_qty - item.qty, precision("rejected_qty", item));
+			item.rejected_qty = flt(item.original_qty - item.qty, precision("rejected_qty", item)); //added original qty by chaitrali
 		}
 
 		this._super(doc, cdt, cdn);
