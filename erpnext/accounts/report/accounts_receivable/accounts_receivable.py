@@ -291,7 +291,7 @@ class ReceivablePayableReport(object):
 		if self.filters.account:
 			# remarks as account for filter
 			conditions.append("remarks like %s")
-			values.append("%" + self.filters.get('account') + "%")
+			values.append("%[#" + self.filters.get('account') + "#]%")
 		return " and ".join(conditions), values
 
 	def get_gl_entries_for(self, party, party_type, against_voucher_type, against_voucher):
