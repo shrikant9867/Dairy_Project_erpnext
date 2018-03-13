@@ -18,6 +18,8 @@ class ReceivablePayableReport(object):
 		party_naming_by = frappe.db.get_value(args.get("naming_by")[0], None, args.get("naming_by")[1])
 		columns = self.get_columns(party_naming_by, args)
 		data = self.get_data(party_naming_by, args)
+		if self.filters.account:
+			data = self.filter_account_data(data)
 		chart = self.get_chart_data(columns, data)
 		return columns, data, None, chart
 
@@ -287,11 +289,6 @@ class ReceivablePayableReport(object):
 			if self.filters.get("credit_days_based_on"):
 				conditions.append("party in (select name from tabCustomer where credit_days_based_on=%s)")
 				values.append(self.filters.get("credit_days_based_on"))
-
-		if self.filters.account:
-			# remarks as account for filter
-			conditions.append("remarks like %s")
-			values.append("%[#" + self.filters.get('account') + "#]%")
 		return " and ".join(conditions), values
 
 	def get_gl_entries_for(self, party, party_type, against_voucher_type, against_voucher):
@@ -325,6 +322,16 @@ class ReceivablePayableReport(object):
 			"type": 'percentage'
 		}
 
+	def filter_account_data(self, data):
+		if not data:
+			return []
+		account = "[#" + self.filters.get('account') + "#]"
+		filterd_data = []
+		for row in data:
+			if row[-1].find(account) != -1:
+				filterd_data.append(row)
+		return filterd_data
+
 def execute(filters=None):
 	args = {
 		"party_type": "Customer",
@@ -350,3 +357,4 @@ def get_ageing_data(first_range, second_range, third_range, age_as_on, entry_dat
 	outstanding_range[index] = outstanding_amount
 
 	return [age] + outstanding_range
+
