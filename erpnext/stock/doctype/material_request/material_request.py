@@ -302,7 +302,8 @@ def make_purchase_receipt(source_name, target_doc=None):
 				["name", "material_request_item"],
 				["parent", "material_request"],
 				["uom", "stock_uom"],
-				["uom", "uom"]
+				["uom", "uom"],
+				["new_dn_qty","qty"]
 			],
 			"postprocess": update_dn_item,
 			# "condition": lambda doc: doc.ordered_qty < doc.qty
