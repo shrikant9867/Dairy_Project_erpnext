@@ -274,7 +274,7 @@ def set_missing_values(source, target):
 @frappe.whitelist()
 def make_purchase_receipt(source_name, target_doc=None):
 	def update_item(obj, target, source_parent):
-		# target.received_qty = obj.qty
+		target.received_qty = obj.qty
 		target.original_qty = obj.qty
 		target.qty = flt(obj.qty) - flt(obj.received_qty)
 		target.stock_qty = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.conversion_factor)
