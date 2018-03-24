@@ -87,5 +87,32 @@ frappe.query_reports["Accounts Receivable"] = {
 				}
 			}
 		})
+		user_data = get_session_user_type()
+		$('body').find("[data-fieldname=company]").val(user_data.company).prop("disabled",true)
 	}
+}
+
+
+get_session_user_type = function() {
+	var user;
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "User",
+			filters: {"name": frappe.session.user},
+			fieldname: ["operator_type","company"]
+		},
+		async:false,
+		callback: function(r){
+			if(r.message){	
+	
+				user = {
+					"operator_type": r.message.operator_type,
+					"company": r.message.company
+				}		
+			}
+		}
+	});
+
+	return user
 }
