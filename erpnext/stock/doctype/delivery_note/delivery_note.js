@@ -143,6 +143,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 							get_query_filters: {
 								material_request_type: "Purchase",
 								docstatus: 1,
+								is_dropship: 1,
 								status: ["in", ["Ordered","Partially Delivered","Pending"]]
 							}
 						})

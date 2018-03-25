@@ -115,7 +115,6 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 								get_query_filters: {
 									material_request_type: "Purchase",
 									docstatus: 1,
-									is_dropship: 1,
 									status: ["in", ["Ordered","Partially Delivered"]]
 								}
 							})
