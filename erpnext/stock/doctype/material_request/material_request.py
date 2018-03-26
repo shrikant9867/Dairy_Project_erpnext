@@ -294,6 +294,7 @@ def make_purchase_receipt(source_name, target_doc=None):
 			"doctype": "Purchase Receipt",
 			"validation": {
 				"docstatus": ["=", 1],
+				"is_dropship": ["=", 1],
 				"material_request_type": ["=", "Purchase"]
 			}
 		},
