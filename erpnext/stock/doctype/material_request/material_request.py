@@ -236,7 +236,6 @@ def make_dn(source_name, target_doc=None):
 			"doctype": "Delivery Note",
 			"validation": {
 				"docstatus": ["=", 1],
-				"is_dropship": ["=", 1],
 				"material_request_type": ["=", "Purchase"]
 			}
 		},
