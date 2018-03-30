@@ -98,6 +98,9 @@ def get_conditions(filters):
 				where wh.lft >= %s and wh.rgt <= %s and sle.warehouse = wh.name)"%(warehouse_details.lft,
 				warehouse_details.rgt)
 
+	if filters.get("company"):
+		conditions += " and sle.company = '%s'"% (filters.get('company'))
+
 	return conditions
 
 def get_stock_ledger_entries(filters):
