@@ -55,20 +55,43 @@ frappe.ui.form.on('Stock Entry', {
 							},
 							callback: function(r) {
 								operator_type = r.message.operator_type
-								erpnext.utils.map_current_doc({
-									method: "erpnext.stock.doctype.material_request.material_request.make_se",
-									source_doctype: "Material Request",
-									target: me.frm,
-									setters: {
-										camp_office:me.frm.doc.camp_office
-									},
-									get_query_filters: {
-										material_request_type: "Purchase",
-										docstatus: 1,
-										is_dropship: operator_type && operator_type == "VLCC" ? 1:0,
-										status: ["in", ["Ordered","Partially Delivered","Pending"]]
-									}
-								})
+								filter_map = {
+									"VLCC": {"is_dropship": 1, "cc": 0},
+									"Chilling Centre": {"is_dropship": 1, "cc": 1},
+									"Camp Office": {"is_dropship": 0, "cc": 0},
+								}
+								if(operator_type && in_list(Object.keys(filter_map), operator_type)) {
+									erpnext.utils.map_current_doc({
+										method: "erpnext.stock.doctype.material_request.material_request.make_se",
+										source_doctype: "Material Request",
+										target: me.frm,
+										setters: {
+											camp_office:me.frm.doc.camp_office
+										},
+										get_query_filters: {
+											material_request_type: "Purchase",
+											docstatus: 1,
+											is_dropship: filter_map[operator_type]['is_dropship'],
+											chilling_centre: filter_map[operator_type]['cc'],
+											status: ["in", ["Ordered","Partially Delivered","Pending"]]
+										}
+									})
+								}
+								else {
+									erpnext.utils.map_current_doc({
+										method: "erpnext.stock.doctype.material_request.material_request.make_se",
+										source_doctype: "Material Request",
+										target: me.frm,
+										setters: {
+											camp_office:me.frm.doc.camp_office
+										},
+										get_query_filters: {
+											material_request_type: "Purchase",
+											docstatus: 1,
+											status: ["in", ["Ordered","Partially Delivered","Pending"]]
+										}
+									})
+								}
 							}
 						})
 					}, __("Get items from"));
