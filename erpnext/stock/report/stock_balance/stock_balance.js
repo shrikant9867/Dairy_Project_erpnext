@@ -48,7 +48,7 @@ frappe.query_reports["Stock Balance"] = {
 			"options": "Company"
 		},
 	],
-	onload: function(report) {
+	onload: function(query_report) {
 		frappe.call({
 			method: "frappe.client.get_value",
 			args: {
