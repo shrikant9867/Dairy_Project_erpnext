@@ -122,7 +122,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 			}
 
 			frappe.model.round_floats_in(item, ["qty", "received_qty"]);
-			item.rejected_qty = flt(item.received_qty - item.qty, precision("rejected_qty", item));
+			//item.rejected_qty = flt(item.received_qty - item.qty, precision("rejected_qty", item));
 		}
 
 		this._super(doc, cdt, cdn);

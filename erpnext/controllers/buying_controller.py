@@ -321,8 +321,8 @@ class BuyingController(StockController):
 				d.rejected_qty = flt(d.received_qty) -  flt(d.qty)
 
 			# Check Received Qty = Accepted Qty + Rejected Qty
-			if ((flt(d.qty) + flt(d.rejected_qty)) != flt(d.received_qty)):
-				frappe.throw(_("Accepted + Rejected Qty must be equal to Received quantity for Item {0}").format(d.item_code))
+			# if ((flt(d.qty) + flt(d.rejected_qty)) != flt(d.received_qty)):
+			# 	frappe.throw(_("Accepted + Rejected Qty must be equal to Received quantity for Item {0}").format(d.item_code))
 
 	def validate_negative_quantity(self, item_row, field_list):
 		if self.is_return:
