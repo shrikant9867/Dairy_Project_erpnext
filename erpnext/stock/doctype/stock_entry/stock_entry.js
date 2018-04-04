@@ -58,7 +58,7 @@ frappe.ui.form.on('Stock Entry', {
 								filter_map = {
 									"VLCC": {"is_dropship": 1, "cc": 0},
 									"Chilling Centre": {"is_dropship": 1, "cc": 1},
-									"Camp Office": {"is_dropship": 0, "cc": 0},
+									"Camp Office": {"is_dropship": 0, "cc": 1},
 								}
 								if(operator_type && in_list(Object.keys(filter_map), operator_type)) {
 									erpnext.utils.map_current_doc({
