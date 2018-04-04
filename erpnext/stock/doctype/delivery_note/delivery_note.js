@@ -145,7 +145,7 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 								docstatus: 1,
 								is_dropship: 0,
 								chilling_centre: 0,
-								status: ["in", ["Ordered","Partially Delivered","Pending"]]
+								status: ["in", ["Ordered","Partially Delivered","Pending", "Partially Ordered"]]
 							}
 						})
 					}, __("Get items from"));
