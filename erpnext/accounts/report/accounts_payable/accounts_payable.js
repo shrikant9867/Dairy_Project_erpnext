@@ -68,6 +68,7 @@ frappe.query_reports["Accounts Payable"] = {
 		// set default camp office expense account as account
 		frappe.call({
 			method: "dairy_erp.customization.sales_invoice.sales_invoice.get_account_invoice",
+			args: { "for_cc": true },
 			callback: function(r) {
 				if(!r.exc && r.message) {
 					$('body').find("[data-fieldname=account]").val(r.message.expense_account).prop("disabled",true)

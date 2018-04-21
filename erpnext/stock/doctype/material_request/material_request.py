@@ -225,6 +225,9 @@ def update_dn_item(obj, target, source_parent):
 
 def update_se_item(obj, target, source_parent):
 		target.conversion_factor = 1
+		target.qty = obj.qty - obj.received_stock_qty
+		target.original_qty = obj.qty - obj.received_stock_qty
+		target.accepted_qty = obj.qty - obj.received_stock_qty
 
 @frappe.whitelist()
 def make_dn(source_name, target_doc=None):
@@ -274,38 +277,11 @@ def make_se(source_name, target_doc=None):
 				["name", "material_request_item"],
 				["parent", "material_request"],
 				["uom", "stock_uom"],
-				["uom", "uom"]
+				["uom", "uom"],
+				["received_stock_qty","qty"]
 			],
 			"postprocess": update_se_item,
-			# "condition": lambda doc: doc.ordered_qty < doc.qty
-		}
-	}, target_doc, postprocess)
-
-	return doclist
-
-@frappe.whitelist()
-def make_se(source_name, target_doc=None):
-	def postprocess(source, target_doc):
-		set_missing_values(source, target_doc)
-
-	doclist = get_mapped_doc("Material Request", source_name, 	{
-		"Material Request": {
-			"doctype": "Stock Entry",
-			"validation": {
-				"docstatus": ["=", 1],
-				"material_request_type": ["=", "Purchase"]
-			}
-		},
-		"Material Request Item": {
-			"doctype": "Stock Entry Detail",
-			"field_map": [
-				["name", "material_request_item"],
-				["parent", "material_request"],
-				["uom", "stock_uom"],
-				["uom", "uom"]
-			],
-			"postprocess": update_se_item,
-			# "condition": lambda doc: doc.ordered_qty < doc.qty
+			"condition": lambda doc: doc.received_stock_qty < doc.qty
 		}
 	}, target_doc, postprocess)
 
@@ -321,6 +297,7 @@ def make_purchase_receipt(source_name, target_doc=None):
 			"doctype": "Purchase Receipt",
 			"validation": {
 				"docstatus": ["=", 1],
+				"is_dropship": ["=", 1],
 				"material_request_type": ["=", "Purchase"]
 			}
 		},
@@ -331,10 +308,11 @@ def make_purchase_receipt(source_name, target_doc=None):
 				["parent", "material_request"],
 				["uom", "stock_uom"],
 				["uom", "uom"],
-				["new_dn_qty","qty"]
+				["new_dn_qty","qty"],
+				["new_dn_qty","received_qty"]
 			],
 			"postprocess": update_dn_item,
-			# "condition": lambda doc: doc.ordered_qty < doc.qty
+			"condition": lambda doc: doc.completed_dn < doc.qty
 		}
 	}, target_doc, postprocess)
 
