@@ -97,6 +97,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 								docstatus: 1,
 								status: ["!=", "Closed"],
 								per_received: ["<", 99.99],
+								is_dropship: 0,
 								company: me.frm.doc.company
 							}
 						})
