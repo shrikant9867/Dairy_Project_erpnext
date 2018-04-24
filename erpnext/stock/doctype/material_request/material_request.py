@@ -222,12 +222,18 @@ def update_item(obj, target, source_parent):
 
 def update_dn_item(obj, target, source_parent):
 	target.conversion_factor = 1
+	target.qty = obj.qty - obj.completed_dn
+
+def update_pr_item(obj, target, source_parent):
+	target.conversion_factor = 1
+	target.qty = obj.qty - obj.completed_dn
+	target.received_qty = obj.qty - obj.completed_dn
 
 def update_se_item(obj, target, source_parent):
-		target.conversion_factor = 1
-		target.qty = obj.qty - obj.received_stock_qty
-		target.original_qty = obj.qty - obj.received_stock_qty
-		target.accepted_qty = obj.qty - obj.received_stock_qty
+	target.conversion_factor = 1
+	target.qty = obj.qty - obj.received_stock_qty
+	target.original_qty = obj.qty - obj.received_stock_qty
+	target.accepted_qty = obj.qty - obj.received_stock_qty
 
 @frappe.whitelist()
 def make_dn(source_name, target_doc=None):
@@ -248,8 +254,8 @@ def make_dn(source_name, target_doc=None):
 				["name", "material_request_item"],
 				["parent", "material_request"],
 				["uom", "stock_uom"],
-				["uom", "uom"],
-				["new_dn_qty","qty"]
+				["uom", "uom"]
+				# ["new_dn_qty","qty"]
 			],
 			"postprocess": update_dn_item,
 			"condition": lambda doc: doc.completed_dn < doc.qty
@@ -308,10 +314,10 @@ def make_purchase_receipt(source_name, target_doc=None):
 				["parent", "material_request"],
 				["uom", "stock_uom"],
 				["uom", "uom"],
-				["new_dn_qty","qty"],
-				["new_dn_qty","received_qty"]
+				# ["new_dn_qty","qty"],
+				# ["completed_dn","received_qty"]
 			],
-			"postprocess": update_dn_item,
+			"postprocess": update_pr_item,
 			"condition": lambda doc: doc.completed_dn < doc.qty
 		}
 	}, target_doc, postprocess)
