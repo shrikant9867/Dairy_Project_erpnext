@@ -1,6 +1,6 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
-
+var test = 0
 frappe.provide("erpnext.buying");
 
 {% include 'erpnext/public/js/controllers/buying.js' %};
@@ -200,6 +200,9 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 		});
 		this.frm.add_custom_button(__('Material Request'),
 			function() {
+				if(cur_frm.doc.is_dropship){
+					test = cur_frm.doc.is_dropship
+				}
 				erpnext.utils.map_current_doc({
 					method: "erpnext.stock.doctype.material_request.material_request.make_purchase_order",
 					source_doctype: "Material Request",
@@ -215,7 +218,9 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 					}
 				})
 			}, __("Add items from"));
-
+		if(test){
+			cur_frm.set_value("is_dropship",1)
+		}
 		this.frm.add_custom_button(__('Supplier Quotation'),
 			function() {
 				erpnext.utils.map_current_doc({
