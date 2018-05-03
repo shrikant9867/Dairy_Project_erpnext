@@ -73,7 +73,7 @@ frappe.ui.form.on('Stock Entry', {
 											docstatus: 1,
 											is_dropship: filter_map[operator_type]['is_dropship'],
 											chilling_centre: filter_map[operator_type]['cc'],
-											status: ["in", ["Ordered","Partially Delivered","Pending"]]
+											status: ["in", ["Ordered","Partially Delivered","Pending","Partially Ordered"]]
 										}
 									})
 								}
