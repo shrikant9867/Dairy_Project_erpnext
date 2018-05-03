@@ -15,10 +15,6 @@ def get_data():
 		},
 		'transactions': [
 			{
-				'label': _('Related'),
-				'items': ['Purchase Invoice', 'Landed Cost Voucher']
-			},
-			{
 				'label': _('Reference'),
 				'items': ['Purchase Order', 'Quality Inspection', 'Project']
 			},

@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 from frappe import _
+import frappe
+from frappe.utils import has_common
 
 def get_data():
-	return [
+	roles = frappe.get_roles()
+	default_list = [
 		{
 			"label": _("Purchasing"),
 			"icon": "fa fa-star",
@@ -208,3 +211,126 @@ def get_data():
 			]
 		}
 	]
+	operator_list = [
+		{
+			"label": _("Purchasing"),
+			"icon": "fa fa-star",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Material Request",
+					"description": _("Request for purchase."),
+				},
+				{
+					"type": "doctype",
+					"name": "Request for Quotation",
+					"description": _("Request for quotation."),
+				},
+				{
+					"type": "doctype",
+					"name": "Supplier Quotation",
+					"description": _("Quotations received from Suppliers."),
+				},
+				{
+					"type": "doctype",
+					"name": "Purchase Order",
+					"description": _("Purchase Orders given to Suppliers."),
+				},
+			]
+		},
+		{
+			"label": _("Analytics"),
+			"icon": "fa fa-table",
+			"items": [
+				{
+					"type": "page",
+					"name": "purchase-analytics",
+					"label": _("Purchase Analytics"),
+					"icon": "fa fa-bar-chart",
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Supplier-Wise Sales Analytics",
+					"doctype": "Stock Ledger Entry"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Purchase Order Trends",
+					"doctype": "Purchase Order"
+				},
+			]
+		},
+		{
+			"label": _("Supplier Scorecard"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Supplier Scorecard",
+					"description": _("All Supplier scorecards."),
+				},
+				{
+					"type": "doctype",
+					"name": "Supplier Scorecard Variable",
+					"description": _("Templates of supplier scorecard variables.")
+				},
+				{
+					"type": "doctype",
+					"name": "Supplier Scorecard Criteria",
+					"description": _("Templates of supplier scorecard criteria."),
+				},
+				{
+					"type": "doctype",
+					"name": "Supplier Scorecard Standing",
+					"description": _("Templates of supplier standings."),
+				},
+
+			]
+		},
+		{
+			"label": _("Other Reports"),
+			"icon": "fa fa-list",
+			"items": [
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Items To Be Requested",
+					"doctype": "Item"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Requested Items To Be Ordered",
+					"doctype": "Material Request"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Material Requests for which Supplier Quotations are not created",
+					"doctype": "Material Request"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Item-wise Purchase History",
+					"doctype": "Item"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Addresses And Contacts",
+					"label": "Supplier Addresses And Contacts",
+					"doctype": "Address",
+					"route_options": {
+						"party_type": "Supplier"
+					}
+				},
+			]
+		}
+	]
+	if has_common(["Dairy Operator", "Camp Operator","Vlcc Operator",
+		"Chilling Center Operator","Vet/AI Technician"], roles):
+		return operator_list
+	else:
+		return default_list
