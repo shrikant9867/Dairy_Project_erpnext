@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 from frappe import _
+import frappe
+from frappe.utils import has_common
 
 def get_data():
-	return [
+	roles = frappe.get_roles()
+	default_list = [
 		{
 			"label": _("Stock Transactions"),
 			"items": [
@@ -290,5 +293,220 @@ def get_data():
 					"doctype": "Item"
 				},
 			]
+		}
+	]
+
+	operator_list = [
+		{
+			"label": _("Stock Transactions"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Stock Entry",
+					"description": _("Record item movement."),
+				},
+				{
+					"type": "doctype",
+					"name": "Delivery Note",
+					"description": _("Shipments to customers."),
+				},
+				{
+					"type": "doctype",
+					"name": "Purchase Receipt",
+					"description": _("Goods received from Suppliers."),
+				},
+				{
+					"type": "doctype",
+					"name": "Material Request",
+					"description": _("Requests for items."),
+				},
+			]
+		},
+		{
+			"label": _("Stock Reports"),
+			"items": [
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Stock Ledger",
+					"doctype": "Stock Ledger Entry",
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Stock Balance",
+					"doctype": "Stock Ledger Entry"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Stock Projected Qty",
+					"doctype": "Item",
+				},
+				{
+					"type": "page",
+					"name": "stock-balance",
+					"label": _("Stock Summary")
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Stock Ageing",
+					"doctype": "Item",
+				},
+
+			]
+		},
+		{
+			"label": _("Serial No and Batch"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Serial No",
+					"description": _("Single unit of an Item."),
+				},
+				{
+					"type": "doctype",
+					"name": "Batch",
+					"description": _("Batch (lot) of an Item."),
+				},
+				{
+					"type": "doctype",
+					"name": "Installation Note",
+					"description": _("Installation record for a Serial No.")
+				},
+				{
+					"type": "report",
+					"name": "Serial No Service Contract Expiry",
+					"doctype": "Serial No"
+				},
+				{
+					"type": "report",
+					"name": "Serial No Status",
+					"doctype": "Serial No"
+				},
+				{
+					"type": "report",
+					"name": "Serial No Warranty Expiry",
+					"doctype": "Serial No"
+				},
+			]
+		},
+		{
+			"label": _("Tools"),
+			"icon": "fa fa-wrench",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Stock Reconciliation",
+					"description": _("Upload stock balance via csv.")
+				},
+				{
+					"type": "doctype",
+					"name": "Packing Slip",
+					"description": _("Split Delivery Note into packages.")
+				},
+				{
+					"type": "doctype",
+					"name": "Quality Inspection",
+					"description": _("Incoming quality inspection.")
+				},
+				{
+					"type": "doctype",
+					"name": "Landed Cost Voucher",
+					"description": _("Update additional costs to calculate landed cost of items"),
+				}
+			]
+		},
+		{
+			"label": _("Analytics"),
+			"icon": "fa fa-table",
+			"items": [
+				{
+					"type": "report",
+					"is_query_report": False,
+					"name": "Item-wise Price List Rate",
+					"doctype": "Item Price",
+				},
+				{
+					"type": "page",
+					"name": "stock-analytics",
+					"label": _("Stock Analytics"),
+					"icon": "fa fa-bar-chart"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Delivery Note Trends",
+					"doctype": "Delivery Note"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Purchase Receipt Trends",
+					"doctype": "Purchase Receipt"
+				},
+
+			]
+		},
+		{
+			"label": _("Reports"),
+			"icon": "fa fa-list",
+			"items": [
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Ordered Items To Be Delivered",
+					"doctype": "Delivery Note"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Purchase Order Items To Be Received",
+					"doctype": "Purchase Receipt"
+				},
+				{
+					"type": "report",
+					"name": "Item Shortage Report",
+					"route": "Report/Bin/Item Shortage Report",
+					"doctype": "Purchase Receipt"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Requested Items To Be Transferred",
+					"doctype": "Material Request"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Batch-Wise Balance History",
+					"doctype": "Batch"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Batch Item Expiry Status",
+					"doctype": "Stock Ledger Entry"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Item Prices",
+					"doctype": "Price List"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Itemwise Recommended Reorder Level",
+					"doctype": "Item"
+				},
+			]
 		},
 	]
+		
+	if has_common(["Dairy Operator", "Camp Operator","Vlcc Operator",
+		"Chilling Center Operator","Vet/AI Technician"], roles):
+		return operator_list
+	else:
+		return default_list

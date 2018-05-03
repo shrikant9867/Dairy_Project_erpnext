@@ -221,7 +221,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 		if(test){
 			cur_frm.set_value("is_dropship",1)
 		}
-		this.frm.add_custom_button(__('Supplier Quotation'),
+		/*this.frm.add_custom_button(__('Supplier Quotation'),
 			function() {
 				erpnext.utils.map_current_doc({
 					method: "erpnext.buying.doctype.supplier_quotation.supplier_quotation.make_purchase_order",
@@ -235,7 +235,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						status: ["!=", "Stopped"],
 					}
 				})
-			}, __("Add items from"));
+			}, __("Add items from"));*/
 
 	},
 

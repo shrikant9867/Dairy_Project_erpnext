@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 from frappe import _
+import frappe
+from frappe.utils import has_common
 
 def get_data():
-	return [
+	roles = frappe.get_roles()
+	default_list = [
 		{
 			"label": _("Sales"),
 			"icon": "fa fa-star",
@@ -304,3 +307,183 @@ def get_data():
 			]
 		}
 	]
+	operator_list = [
+		{
+			"label": _("Sales"),
+			"icon": "fa fa-star",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Quotation",
+					"description": _("Quotes to Leads or Customers."),
+				},
+				{
+					"type": "doctype",
+					"name": "Sales Order",
+					"description": _("Confirmed orders from Customers."),
+				},
+			]
+		},
+		{
+			"label": _("Customers"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Customer",
+					"description": _("Customer database."),
+				},
+				{
+					"type": "doctype",
+					"label": _("Customer Group"),
+					"name": "Customer Group",
+					"icon": "fa fa-sitemap",
+					"link": "Tree/Customer Group",
+					"description": _("Manage Customer Group Tree."),
+				},
+				{
+					"type": "doctype",
+					"name": "Contact",
+					"description": _("All Contacts."),
+				},
+				{
+					"type": "doctype",
+					"name": "Address",
+					"description": _("All Addresses."),
+				},
+
+			]
+		},
+		{
+			"label": _("Analytics"),
+			"icon": "fa fa-table",
+			"items": [
+				{
+					"type": "page",
+					"name": "sales-analytics",
+					"label": _("Sales Analytics"),
+					"icon": "fa fa-bar-chart",
+				},
+				{
+					"type": "page",
+					"name": "sales-funnel",
+					"label": _("Sales Funnel"),
+					"icon": "fa fa-bar-chart",
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Customer Acquisition and Loyalty",
+					"doctype": "Customer",
+					"icon": "fa fa-bar-chart",
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Quotation Trends",
+					"doctype": "Quotation"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Sales Order Trends",
+					"doctype": "Sales Order"
+				},
+			]
+		},
+		{
+			"label": _("Other Reports"),
+			"icon": "fa fa-list",
+			"items": [
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Lead Details",
+					"doctype": "Lead"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Addresses And Contacts",
+					"label": _("Customer Addresses And Contacts"),
+					"doctype": "Address",
+					"route_options": {
+						"party_type": "Customer"
+					}
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Ordered Items To Be Delivered",
+					"doctype": "Sales Order"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Sales Person-wise Transaction Summary",
+					"doctype": "Sales Order"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Item-wise Sales History",
+					"doctype": "Item"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "BOM Search",
+					"doctype": "BOM"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Inactive Customers",
+					"doctype": "Sales Order"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Available Stock for Packing Items",
+					"doctype": "Item",
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Pending SO Items For Purchase Request",
+					"doctype": "Sales Order"
+				},
+				{
+					"type": "report",
+					"is_query_report": True,
+					"name": "Customer Credit Balance",
+					"doctype": "Customer"
+				},
+			]
+		},
+		{
+			"label": _("SMS"),
+			"icon": "fa fa-wrench",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "SMS Center",
+					"description":_("Send mass SMS to your contacts"),
+				},
+				{
+					"type": "doctype",
+					"name": "SMS Log",
+					"description":_("Logs for maintaining sms delivery status"),
+				},
+				{
+					"type": "doctype",
+					"name": "SMS Settings",
+					"description": _("Setup SMS gateway settings")
+				},
+			]
+		}
+	]
+	if has_common(["Dairy Operator", "Camp Operator","Vlcc Operator",
+		"Chilling Center Operator","Vet/AI Technician"], roles):
+		return operator_list
+	else:
+		return default_list

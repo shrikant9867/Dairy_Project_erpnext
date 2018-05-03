@@ -328,8 +328,9 @@ class ReceivablePayableReport(object):
 		account = "[#" + self.filters.get('account') + "#]"
 		filterd_data = []
 		for row in data:
-			if row[-1].find(account) != -1:
-				filterd_data.append(row)
+			if row[-1]:
+				if row[-1].find(account) != -1:
+					filterd_data.append(row)
 		return filterd_data
 
 def execute(filters=None):

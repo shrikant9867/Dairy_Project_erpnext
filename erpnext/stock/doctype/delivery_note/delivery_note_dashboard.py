@@ -21,10 +21,6 @@ def get_data():
 				'items': ['Sales Order', 'Quality Inspection']
 			},
 			{
-				'label': _('Returns'),
-				'items': ['Stock Entry']
-			},
-			{
 				'label': _('Subscription'),
 				'items': ['Subscription']
 			},
