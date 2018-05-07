@@ -38,14 +38,26 @@ frappe.query_reports["Stock Balance"] = {
 			"label": __("Warehouse"),
 			"fieldtype": "Link",
 			"width": "80",
-			"options": "Warehouse"
+			"options": "Warehouse",
+			"get_query": function (query_report) {
+				return {
+					query:"dairy_erp.customization.stock_balance.stock_balance_report.get_filtered_warehouse"
+					
+				}
+			}
 		},
 		{
 			"fieldname": "company",
 			"label": __("Company"),
 			"fieldtype": "Link",
 			"width": "80",
-			"options": "Company"
+			"options": "Company",
+			"get_query": function (query_report) {
+				return {
+					query:"dairy_erp.customization.stock_balance.stock_balance_report.get_associated_vlcc"
+					
+				}
+			}
 		},
 	],
 	onload: function(query_report) {
@@ -84,8 +96,14 @@ set_warehouse_filter = function(branch_office) {
 			if(r.exc || !r.message.warehouse) {
 				frappe.throw(__("Unable to find warehoue for <b>{0}</b>", (branch_office)))
 			}
-			$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse).prop("disabled",true)
-			$('body').find("[data-fieldname=company]").val("").prop("disabled",true)
+			if (in_list(frappe.user_roles,"Camp Operator")){
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse).prop("disabled",true)
+				$('body').find("[data-fieldname=company]").val("").prop("disabled",true)
+			}
+			else if(in_list(frappe.user_roles, "Camp Manager")) {
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse)
+				$('body').find("[data-fieldname=company]").val("")
+			}
 		}
 	})
 }
