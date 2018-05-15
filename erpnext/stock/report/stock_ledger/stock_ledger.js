@@ -9,7 +9,12 @@ frappe.query_reports["Stock Ledger"] = {
 			"fieldtype": "Link",
 			"options": "Company",
 			"default": frappe.defaults.get_user_default("Company"),
-			"reqd": 1
+			"reqd": 1,
+			"get_query": function (query_report) {
+				return {
+					query:"dairy_erp.customization.stock_balance.stock_balance_report.get_associated_vlcc"		
+				}
+			}
 		},
 		{
 			"fieldname":"from_date",
@@ -29,7 +34,13 @@ frappe.query_reports["Stock Ledger"] = {
 			"fieldname":"warehouse",
 			"label": __("Warehouse"),
 			"fieldtype": "Link",
-			"options": "Warehouse"
+			"options": "Warehouse",
+			"get_query": function (query_report) {
+				return {
+					query:"dairy_erp.customization.stock_balance.stock_balance_report.get_filtered_warehouse"
+					
+				}
+			}
 		},
 		{
 			"fieldname":"item_code",
@@ -71,11 +82,22 @@ frappe.query_reports["Stock Ledger"] = {
 			},
 			callback: function(r) {
 				if(!r.exc && r.message) {
-					if(r.message.operator_type == "VLCC") {
+					if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
 						$('body').find("[data-fieldname=company]").val(r.message.company).prop("disabled",true)
+						set_vlcc_wh(r.message.company)
 					}
-					if(in_list(["Chilling Centre", "Camp Office"],r.message.operator_type)) {
-						set_warehouse_filter(r.message.branch_office, r.message.company)
+					else if(has_common(frappe.user_roles, ["Camp Operator", "Camp Manager"])){
+						set_warehouse_filter(r.message.branch_office)
+						if (in_list(frappe.user_roles,"Camp Operator")){
+							$('body').find("[data-fieldname=company]").val(r.message.company).prop("disabled",true)
+						}
+						else if(in_list(frappe.user_roles, "Camp Manager")) {
+							$('body').find("[data-fieldname=company]").val(r.message.company)
+						}
+					}
+					else if(has_common(frappe.user_roles, ["Chilling Center Operator", "Chilling Center Manager"])){
+						set_warehouse_filter(r.message.branch_office)
+						$('body').find("[data-fieldname=company]").val(r.message.company).prop("disabled",true)
 					}
 					query_report.trigger_refresh();
 				}
@@ -84,7 +106,7 @@ frappe.query_reports["Stock Ledger"] = {
 	}
 }
 
-set_warehouse_filter = function(branch_office, company) {
+set_warehouse_filter = function(branch_office) {
 	frappe.call({
 		method: "frappe.client.get_value",
 		args: {
@@ -97,14 +119,36 @@ set_warehouse_filter = function(branch_office, company) {
 			if(r.exc || !r.message.warehouse) {
 				frappe.throw(__("Unable to find warehoue for <b>{0}</b>", (branch_office)))
 			}
-			$('body').find("[data-fieldname=company]").val(company).prop("disabled",true)
-			$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse).prop("disabled",true)
+			else if (in_list(frappe.user_roles,"Camp Operator")){
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse).prop("disabled",true)
+			}
+			else if(in_list(frappe.user_roles, "Camp Manager")) {
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse)
+			}
+			else if(has_common(frappe.user_roles, ["Chilling Center Operator", "Chilling Center Manager"])){
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse).prop("disabled",true)
+			}
 		}
 	})
 }
 
-// $(function() {
-// 	$(wrapper).bind("show", function() {
-// 		frappe.query_report.load();
-// 	});
-// });
+set_vlcc_wh = function(company){
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Village Level Collection Centre",
+			filters: {"name": company},
+			fieldname: "warehouse"
+		},
+		async: false,
+		callback: function(r) {
+			if(r.exc || !r.message.warehouse) {
+				frappe.throw(__("Unable to find warehoue for <b>{0}</b>", (company)))
+			}
+			else if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
+				$('body').find("[data-fieldname=warehouse]").val(r.message.warehouse)
+			}
+		}
+	})
+
+}
