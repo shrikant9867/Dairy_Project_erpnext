@@ -44,6 +44,11 @@ erpnext.financial_statements = {
 	onload: function(report) {
 		// dropdown for links to other financial statements
 		erpnext.financial_statements.filters = get_filters()
+		if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
+			frappe.db.get_value("User",frappe.session.user,"company", function(v){
+				$('body').find("[data-fieldname=company]").val(v['company']).prop("disabled",true)
+			})
+		}
 
 		report.page.add_inner_button(__("Balance Sheet"), function() {
 			var filters = report.get_values();
