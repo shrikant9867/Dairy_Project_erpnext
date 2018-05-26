@@ -67,7 +67,7 @@ frappe.query_reports["Stock Balance"] = {
 				fieldname: ["operator_type","company", "branch_office"]
 			},
 			callback: function(r) {
-				if(!r.exc && r.message) {
+				if(!r.exc && r.message && !in_list(["Administrator", "Guest"], frappe.session.user)){
 					if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
 						$('body').find("[data-fieldname=company]").val(r.message.company).prop("disabled",true)
 						set_vlcc_wh(r.message.company)
