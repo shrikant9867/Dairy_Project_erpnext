@@ -62,7 +62,7 @@ frappe.require("assets/erpnext/js/financial_statements.js", function() {
 			}
 		],
 		onload: function() {
-			if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
+			if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"]) && !in_list(["Administrator", "Guest"], frappe.session.user)){
 				frappe.db.get_value("User",frappe.session.user,"company", function(v){
 					$('body').find("[data-fieldname=company]").val(v['company']).prop("disabled",true)
 				})
