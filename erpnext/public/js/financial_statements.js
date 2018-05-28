@@ -73,7 +73,12 @@ function get_filters(){
 			"fieldtype": "Link",
 			"options": "Company",
 			"default": frappe.defaults.get_user_default("Company"),
-			"reqd": 1
+			"reqd": 1,
+			"get_query": function (query_report) {
+				return {
+					query:"dairy_erp.customization.stock_balance.stock_balance_report.get_associated_vlcc"		
+				}
+			}
 		},
 		{
 			"fieldname":"from_fiscal_year",
