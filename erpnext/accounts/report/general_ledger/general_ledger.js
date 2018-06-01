@@ -106,5 +106,22 @@ frappe.query_reports["General Ledger"] = {
 			"label": __("Group by Account"),
 			"fieldtype": "Check",
 		}
-	]
+	],
+	onload: function(report) {
+		frappe.call({
+			method: "frappe.client.get_value",
+			args: {
+				doctype: "User",
+				filters: {"name": frappe.session.user},
+				fieldname: ["operator_type","company", "branch_office"]
+			},
+			callback: function(r) {
+				console.log(r)
+				if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"])){
+						console.log(r.message.company)
+						$('body').find("[data-fieldname=company]").val(r.message.company).prop("disabled",true)
+					}
+			}
+		});
+	}
 }
