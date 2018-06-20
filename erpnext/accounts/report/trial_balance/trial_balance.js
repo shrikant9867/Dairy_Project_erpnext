@@ -10,7 +10,12 @@ frappe.require("assets/erpnext/js/financial_statements.js", function() {
 				"fieldtype": "Link",
 				"options": "Company",
 				"default": frappe.defaults.get_user_default("Company"),
-				"reqd": 1
+				"reqd": 1,
+				"get_query": function (query_report) {
+					return {
+						query:"dairy_erp.customization.stock_balance.stock_balance_report.get_associated_vlcc"		
+					}
+				}
 			},
 			{
 				"fieldname": "fiscal_year",
@@ -61,6 +66,13 @@ frappe.require("assets/erpnext/js/financial_statements.js", function() {
 				"fieldtype": "Check"
 			}
 		],
+		onload: function() {
+			if(has_common(frappe.user_roles, ["Vlcc Operator", "Vlcc Manager"]) && !in_list(["Administrator", "Guest"], frappe.session.user)){
+				frappe.db.get_value("User",frappe.session.user,"company", function(v){
+					$('body').find("[data-fieldname=company]").val(v['company']).prop("disabled",true)
+				})
+			}
+		},
 		"formatter": erpnext.financial_statements.formatter,
 		"tree": true,
 		"name_field": "account",

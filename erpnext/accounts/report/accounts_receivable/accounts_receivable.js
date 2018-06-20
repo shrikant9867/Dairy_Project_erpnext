@@ -88,7 +88,9 @@ frappe.query_reports["Accounts Receivable"] = {
 			}
 		})
 		user_data = get_session_user_type()
-		$('body').find("[data-fieldname=company]").val(user_data.company).prop("disabled",true)
+		if(!in_list(["Administrator", "Guest"], frappe.session.user)){
+			$('body').find("[data-fieldname=company]").val(user_data.company).prop("disabled",true)
+		}
 	}
 }
 
