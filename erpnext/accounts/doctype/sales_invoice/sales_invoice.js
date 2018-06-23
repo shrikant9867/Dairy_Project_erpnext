@@ -75,8 +75,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 						cur_frm.cscript['Make Delivery Note'], __("Make"));
 				}
 			}
-
-			if(doc.outstanding_amount!=0 && !cint(doc.is_return)) {
+			if(doc.outstanding_amount!=0 && !cint(doc.is_return) && !(doc.vlcc_milk_collection_record || doc.purchase_invoice)) {
 				cur_frm.add_custom_button(__('Payment'),
 					this.make_payment_entry, __("Make"));
 			}
