@@ -120,6 +120,9 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 									status: ["in", ["Ordered","Partially Delivered"]]
 								}
 							})
+						// make items table read only for vlcc when do PR for MI
+						//me.frm.set_df_property("items", "read_only",1);	
+						cur_frm.cscript.toggle_editable_qty("get items from");
 						}, __("Get items from"));
 				}
 			}
@@ -131,7 +134,9 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 
 				cur_frm.add_custom_button(__('Return'), this.make_purchase_return, __("Make"));
 
-				if(flt(this.frm.doc.per_billed) < 100) {
+				// Add condition when supplier type is 
+				// VLCC local then No option of Invoice
+				if(flt(this.frm.doc.per_billed) < 100 && this.frm.doc.supplier_type != "VLCC Local") {
 					cur_frm.add_custom_button(__('Invoice'), this.make_purchase_invoice, __("Make"));
 				}
 
@@ -145,12 +150,17 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 			}
 		}
 
-
 		if(this.frm.doc.docstatus==1 && this.frm.doc.status === "Closed" && this.frm.has_perm("submit")) {
 			cur_frm.add_custom_button(__('Reopen'), this.reopen_purchase_receipt, __("Status"))
 		}
 
 		this.frm.toggle_reqd("supplier_warehouse", this.frm.doc.is_subcontracted==="Yes");
+	},
+
+
+	// make qty read only for vlcc when do PR for MI
+	items_on_form_rendered: function(doc, grid_row) {
+		cur_frm.cscript.toggle_editable_qty("items_on_form_rendered");
 	},
 
 	make_purchase_invoice: function() {
@@ -176,6 +186,18 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 	}
 
 });
+
+// make qty read only for vlcc when do PR for MI
+cur_frm.cscript.toggle_editable_qty = function(where) {
+	console.log(where)
+	var editable_qty = frappe.meta.get_docfield("Purchase Receipt Item","qty", cur_frm.doc.name);
+	var material_request_name = frappe.meta.get_docfield("Purchase Receipt Item","material_request", cur_frm.doc.name);
+	if(editable_qty && material_request_name) {
+		editable_qty.read_only = 1;
+	}
+}
+
+
 
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.stock.PurchaseReceiptController({frm: cur_frm}));
