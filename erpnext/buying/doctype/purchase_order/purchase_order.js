@@ -27,6 +27,9 @@ frappe.ui.form.on("Purchase Order", {
 		frm.set_indicator_formatter('item_code',
 			function(doc) { return (doc.qty<=doc.received_qty) ? "green" : "orange" })
 	},
+	items_on_form_rendered: function(doc, grid_row) {
+		cur_frm.cscript.toggle_editable_qty("items_on_form_rendered");
+	},
 });
 
 frappe.ui.form.on("Purchase Order Item", {
@@ -51,6 +54,7 @@ frappe.ui.form.on("Purchase Order Item", {
 		}
 	}
 });
+
 
 erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend({
 	refresh: function(doc, cdt, cdn) {
@@ -198,26 +202,29 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 				}
 			}
 		});
-		this.frm.add_custom_button(__('Material Request'),
-			function() {
-				if(cur_frm.doc.is_dropship){
-					test = cur_frm.doc.is_dropship
-				}
-				erpnext.utils.map_current_doc({
-					method: "erpnext.stock.doctype.material_request.material_request.make_purchase_order",
-					source_doctype: "Material Request",
-					target: me.frm,
-					setters: {
-						camp_office:me.branch_office || undefined,
-						company: undefined
-					},
-					get_query_filters: {
-						material_request_type: "Purchase",
-						docstatus: 1,
-						status: ["in", ["Pending","Partially ordered"]]
+		if (has_common(frappe.user_roles, ["Camp Operator", "Camp Manager"])){
+			this.frm.add_custom_button(__('Material Request'),
+				function() {
+					if(cur_frm.doc.is_dropship){
+						test = cur_frm.doc.is_dropship
 					}
-				})
-			}, __("Add items from"));
+					erpnext.utils.map_current_doc({
+						method: "erpnext.stock.doctype.material_request.material_request.make_purchase_order",
+						source_doctype: "Material Request",
+						target: me.frm,
+						setters: {
+							camp_office:me.branch_office || undefined,
+							company: undefined
+						},
+						get_query_filters: {
+							material_request_type: "Purchase",
+							docstatus: 1,
+							status: ["in", ["Pending","Partially ordered"]]
+						}
+					})
+					cur_frm.cscript.toggle_editable_qty("add items from");
+				}, __("Add items from"));
+		}
 		if(test){
 			cur_frm.set_value("is_dropship",1)
 		}
@@ -287,6 +294,16 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.buying.PurchaseOrderController({frm: cur_frm}));
+
+cur_frm.cscript.toggle_editable_qty = function(where) {
+	console.log(where)
+	var editable_qty = frappe.meta.get_docfield("Purchase Order Item","qty", cur_frm.doc.name);
+	var material_request_name = frappe.meta.get_docfield("Purchase Order Item","material_request", cur_frm.doc.name);
+	if(editable_qty && material_request_name) {
+		editable_qty.read_only = 1;
+	}
+}
+
 
 cur_frm.cscript.update_status= function(label, status){
 	frappe.call({
