@@ -39,6 +39,9 @@ frappe.ui.form.on("Purchase Receipt", {
 		if(frm.doc.company) {
 			frm.trigger("toggle_display_account_head");
 		}
+		if(cur_frm.doc.items){
+			cur_frm.cscript.non_editable_qty();
+		}
 	},
 
 	company: function(frm) {
@@ -122,7 +125,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 							})
 						// make items table read only for vlcc when do PR for MI
 						//me.frm.set_df_property("items", "read_only",1);	
-						cur_frm.cscript.toggle_editable_qty("get items from");
+						//cur_frm.cscript.non_editable_qty();
 						}, __("Get items from"));
 				}
 			}
@@ -159,8 +162,8 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 
 
 	// make qty read only for vlcc when do PR for MI
-	items_on_form_rendered: function(doc, grid_row) {
-		cur_frm.cscript.toggle_editable_qty("items_on_form_rendered");
+	items_on_form_rendered: function(frm, cdt, cdn) {
+		cur_frm.cscript.toggle_editable_qty(frm, cdt, cdn);
 	},
 
 	make_purchase_invoice: function() {
@@ -188,15 +191,40 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 });
 
 // make qty read only for vlcc when do PR for MI
-cur_frm.cscript.toggle_editable_qty = function(where) {
-	console.log(where)
-	var editable_qty = frappe.meta.get_docfield("Purchase Receipt Item","qty", cur_frm.doc.name);
-	var material_request_name = frappe.meta.get_docfield("Purchase Receipt Item","material_request", cur_frm.doc.name);
-	if(editable_qty && material_request_name) {
-		editable_qty.read_only = 1;
-	}
+cur_frm.cscript.toggle_editable_qty = function(frm, cdt, cdn) {
+	var row = cur_frm.open_grid_row().doc
+	frappe.call({
+		method: "dairy_erp.customization.purchase_receipt.purchase_receipt.make_mi_qty_editable",
+		callback: function(r){
+			if(r.message && r.message == "True"){
+				if(row.material_request && row.qty) {
+					cur_frm.open_grid_row().toggle_editable("qty", false);
+					$('.grid-delete-row').hide();
+				}
+				else {
+			     	cur_frm.open_grid_row().toggle_editable("qty", true);
+				}
+			}
+		}
+	});
 }
 
+cur_frm.cscript.non_editable_qty = function() {
+	frappe.call({
+		method: "dairy_erp.customization.purchase_receipt.purchase_receipt.make_mi_qty_editable",
+		callback: function(r){
+			if(r.message && r.message == "True"){
+				$.each(cur_frm.doc.items,function(i,d){
+					console.log(d.material_request,"material_request",i)
+					if(d.material_request){
+						$('[data-fieldname=items]').find('[data-idx='+d.idx+']').find('[data-fieldname=qty]').addClass("non_editable_field")
+						$('[data-fieldname=items]').find('[data-idx='+d.idx+']').find('.grid-row-check').addClass("non_editable_field")
+					}
+				})
+			}
+		}
+	});
+}
 
 
 // for backward compatibility: combine new and previous states
