@@ -4,6 +4,7 @@ var test = 0
 frappe.provide("erpnext.buying");
 
 {% include 'erpnext/public/js/controllers/buying.js' %};
+{% include 'erpnext/stock/doctype/purchase_receipt/purchase_receipt.js' %};
 
 frappe.ui.form.on("Purchase Order", {
 	setup: function(frm) {
@@ -27,9 +28,14 @@ frappe.ui.form.on("Purchase Order", {
 		frm.set_indicator_formatter('item_code',
 			function(doc) { return (doc.qty<=doc.received_qty) ? "green" : "orange" })
 	},
-	items_on_form_rendered: function(doc, grid_row) {
-		cur_frm.cscript.toggle_editable_qty("items_on_form_rendered");
+	items_on_form_rendered: function(frm, cdt, cdn) {
+		cur_frm.cscript.toggle_editable_qty(frm, cdt, cdn);
 	},
+	refresh: function(frm){
+		if(cur_frm.doc.items){
+			cur_frm.cscript.non_editable_qty();
+		}
+	}
 });
 
 frappe.ui.form.on("Purchase Order Item", {
@@ -222,7 +228,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 							status: ["in", ["Pending","Partially ordered"]]
 						}
 					})
-					cur_frm.cscript.toggle_editable_qty("add items from");
+					//cur_frm.cscript.toggle_editable_qty("add items from");
 				}, __("Add items from"));
 		}
 		if(test){
@@ -295,14 +301,24 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.buying.PurchaseOrderController({frm: cur_frm}));
 
-cur_frm.cscript.toggle_editable_qty = function(where) {
+
+/*cur_frm.cscript.toggle_editable_qty = function(where) {
 	console.log(where)
-	var editable_qty = frappe.meta.get_docfield("Purchase Order Item","qty", cur_frm.doc.name);
-	var material_request_name = frappe.meta.get_docfield("Purchase Order Item","material_request", cur_frm.doc.name);
-	if(editable_qty && material_request_name) {
-		editable_qty.read_only = 1;
-	}
+	frappe.call({
+		method: "dairy_erp.customization.purchase_receipt.purchase_receipt.make_mi_qty_editable",
+		callback: function(r){
+			if(r.message && r.message == "True"){
+				var editable_qty = frappe.meta.get_docfield("Purchase Receipt Item","qty", cur_frm.doc.name);
+				var material_request_name = frappe.meta.get_docfield("Purchase Receipt Item","material_request", cur_frm.doc.name);
+				if(editable_qty && material_request_name) {
+					editable_qty.read_only = 1;
+				}
+			}
+		}
+	});
 }
+*/
+
 
 
 cur_frm.cscript.update_status= function(label, status){
