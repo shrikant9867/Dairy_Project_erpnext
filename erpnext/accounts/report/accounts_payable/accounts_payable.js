@@ -14,7 +14,19 @@ frappe.query_reports["Accounts Payable"] = {
 			"fieldname":"supplier",
 			"label": __("Supplier"),
 			"fieldtype": "Link",
-			"options": "Supplier"
+			"options": "Supplier",
+			"get_query": function (query_report) {
+				dairy_roles = ["Dairy Manager", "Dairy Operator"]
+				user_ = frappe.session.user
+				if(user_ != "Administrator" && has_common(frappe.user_roles, dairy_roles)) {
+					 return{
+							  "filters": {
+							   		"supplier_type": ["!=", "Farmer"],
+							   }
+						  }
+				}
+				 
+			  }
 		},
 		{
 			"fieldname":"report_date",
@@ -105,3 +117,4 @@ get_session_user_type = function() {
 
 	return user
 }
+

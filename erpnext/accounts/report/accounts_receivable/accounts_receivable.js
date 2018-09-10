@@ -14,13 +14,30 @@ frappe.query_reports["Accounts Receivable"] = {
 			"fieldname":"customer",
 			"label": __("Customer"),
 			"fieldtype": "Link",
-			"options": "Customer"
+			"options": "Customer",
+			"get_query": function (query_report) {
+				dairy_roles = ["Dairy Manager", "Dairy Operator"]
+				user_ = frappe.session.user
+				if(user_ != "Administrator" && has_common(frappe.user_roles, dairy_roles)) {
+					 return{
+							  query:"dairy_erp.customization.customization.get_filtered_customer"
+						  }
+				}
+				 
+			  }
 		},
 		{
 			"fieldname":"customer_group",
 			"label": __("Customer Group"),
 			"fieldtype": "Link",
-			"options": "Customer Group"
+			"options": "Customer Group",
+			// "get_query": function (query_report) {
+			// 	 return{
+			// 			  "filters": {
+			// 			   		"name": ["!=", "Farmer"],
+			// 			   }
+			// 		  }
+			//   }
 		},
 		{
 			"fieldname":"credit_days_based_on",
@@ -118,3 +135,5 @@ get_session_user_type = function() {
 
 	return user
 }
+
+
