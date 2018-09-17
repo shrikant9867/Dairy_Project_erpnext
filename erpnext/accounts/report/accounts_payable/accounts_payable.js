@@ -117,4 +117,3 @@ get_session_user_type = function() {
 
 	return user
 }
-
