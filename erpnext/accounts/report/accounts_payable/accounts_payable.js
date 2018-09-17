@@ -21,7 +21,7 @@ frappe.query_reports["Accounts Payable"] = {
 				if(user_ != "Administrator" && has_common(frappe.user_roles, dairy_roles)) {
 					 return{
 							  "filters": {
-							   		"supplier_type": ["!=", "Farmer"],
+							   		"supplier_type": ["not in", ["Farmer","Vlcc Local Customer","Vlcc Local Institution","VLCC Local"]],
 							   }
 						  }
 				}
