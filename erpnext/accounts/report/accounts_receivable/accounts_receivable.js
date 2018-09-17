@@ -14,7 +14,6 @@ frappe.query_reports["Accounts Receivable"] = {
 			"fieldname":"customer",
 			"label": __("Customer"),
 			"fieldtype": "Link",
-<<<<<<< HEAD
 			"options": "Customer",
 			"get_query": function (query_report) {
 				dairy_roles = ["Dairy Manager", "Dairy Operator"]
@@ -26,15 +25,11 @@ frappe.query_reports["Accounts Receivable"] = {
 				}
 				 
 			  }
-=======
-			"options": "Customer"
->>>>>>> 32a638b6a35f98611994f1f3a0908a66755c1f70
 		},
 		{
 			"fieldname":"customer_group",
 			"label": __("Customer Group"),
 			"fieldtype": "Link",
-<<<<<<< HEAD
 			"options": "Customer Group",
 			// "get_query": function (query_report) {
 			// 	 return{
@@ -43,9 +38,6 @@ frappe.query_reports["Accounts Receivable"] = {
 			// 			   }
 			// 		  }
 			//   }
-=======
-			"options": "Customer Group"
->>>>>>> 32a638b6a35f98611994f1f3a0908a66755c1f70
 		},
 		{
 			"fieldname":"credit_days_based_on",
@@ -143,8 +135,4 @@ get_session_user_type = function() {
 
 	return user
 }
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 32a638b6a35f98611994f1f3a0908a66755c1f70
