@@ -18,8 +18,9 @@ def execute(filters=None):
 
 	for sle in sl_entries:
 		item_detail = item_details[sle.item_code]
+		date1=str(sle.date.day)+"-"+str(sle.date.month)+"-"+str(sle.date.year)[2::]
 
-		data.append([sle.date, sle.item_code, item_detail.item_name, item_detail.item_group,
+		data.append([date1, sle.item_code, item_detail.item_name, item_detail.item_group,
 			item_detail.brand, item_detail.description, sle.warehouse,
 			item_detail.stock_uom, sle.actual_qty, sle.qty_after_transaction,
 			(sle.incoming_rate if sle.actual_qty > 0 else 0.0),
@@ -30,7 +31,7 @@ def execute(filters=None):
 
 def get_columns():
 	columns = [
-		_("Date") + ":Datetime:95", _("Item") + ":Link/Item:130",
+		_("Date") + ":Data:95", _("Item") + ":Link/Item:130",
 		_("Item Name") + "::100", _("Item Group") + ":Link/Item Group:100",
 		_("Brand") + ":Link/Brand:100", _("Description") + "::200",
 		_("Warehouse") + ":Link/Warehouse:100", _("Stock UOM") + ":Link/UOM:100",
@@ -52,7 +53,7 @@ def get_columns():
 	return columns
 
 def get_stock_ledger_entries(filters):
-	return frappe.db.sql("""select concat_ws(" ", posting_date, posting_time) as date,
+	return frappe.db.sql("""select posting_date as date,
 			item_code, warehouse, actual_qty, qty_after_transaction, incoming_rate, valuation_rate,
 			stock_value, voucher_type, voucher_no, batch_no, serial_no, company
 		from `tabStock Ledger Entry` sle
