@@ -102,8 +102,10 @@ class JournalEntry(AccountsController):
 				if not (d.party_type and d.party):
 					frappe.throw(_("Row {0}: Party Type and Party is required for Receivable / Payable account {1}").format(d.idx, d.account))
 			elif d.party_type and d.party:
-				frappe.throw(_("Row {0}: Party Type and Party is only applicable against Receivable / Payable account").format(d.idx))
-
+				# frappe.throw(_("Row {0}: Party Type and Party is only applicable against Receivable / Payable account").format(d.idx))
+				# custom pass for dairy so as one can give loan to its customers and must receivable type
+				pass
+				
 	def check_credit_limit(self):
 		customers = list(set([d.party for d in self.get("accounts")
 			if d.party_type=="Customer" and d.party and flt(d.debit) > 0]))
@@ -126,7 +128,7 @@ class JournalEntry(AccountsController):
 			if d.reference_type not in ("Sales Invoice", "Purchase Invoice", "Journal Entry"):
 				if (d.party_type == 'Customer' and flt(d.credit) > 0) or \
 						(d.party_type == 'Supplier' and flt(d.debit) > 0):
-					if d.is_advance=="No":
+					if d.is_advance=="No" and self.type == "Farmer Advance":
 						msgprint(_("Row {0}: Please check 'Is Advance' against Account {1} if this is an advance entry.").format(d.idx, d.account))
 					elif d.reference_type in ("Sales Order", "Purchase Order") and d.is_advance != "Yes":
 						frappe.throw(_("Row {0}: Payment against Sales/Purchase Order should always be marked as advance").format(d.idx))
