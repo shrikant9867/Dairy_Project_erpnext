@@ -108,24 +108,27 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 				if(me.operator_type == "VLCC"){
 					this.frm.add_custom_button(__('Material Request'),
 						function() {
-							erpnext.utils.map_current_doc({
-								method: "erpnext.stock.doctype.material_request.material_request.make_purchase_receipt",
-								source_doctype: "Material Request",
-								target: me.frm,
-								setters: {
-									company: me.frm.doc.company,
-									// camp_office:me.branch_office
-								},
-								get_query_filters: {
-									material_request_type: "Purchase",
-									docstatus: 1,
-									is_dropship: 1,
-									status: ["in", ["Ordered","Partially Delivered"]]
-								}
-							})
-						// make items table read only for vlcc when do PR for MI
-						//me.frm.set_df_property("items", "read_only",1);	
-						//cur_frm.cscript.non_editable_qty();
+							// Restrict vlcc to choose MI items if supplier_type is farmer
+							if(cur_frm.doc.supplier_type == "Farmer"){
+								frappe.throw("Can't select 'Material Indent' for supplier type as 'Farmer' ")
+							}
+							else {
+								erpnext.utils.map_current_doc({
+									method: "erpnext.stock.doctype.material_request.material_request.make_purchase_receipt",
+									source_doctype: "Material Request",
+									target: me.frm,
+									setters: {
+										company: me.frm.doc.company,
+										// camp_office:me.branch_office
+									},
+									get_query_filters: {
+										material_request_type: "Purchase",
+										docstatus: 1,
+										is_dropship: 1,
+										status: ["in", ["Ordered","Partially Delivered"]]
+									}
+								})
+							}
 						}, __("Get items from"));
 				}
 			}
@@ -159,7 +162,6 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 
 		this.frm.toggle_reqd("supplier_warehouse", this.frm.doc.is_subcontracted==="Yes");
 	},
-
 
 	// make qty read only for vlcc when do PR for MI
 	items_on_form_rendered: function(frm, cdt, cdn) {
@@ -208,6 +210,7 @@ cur_frm.cscript.toggle_editable_qty = function(frm, cdt, cdn) {
 		}
 	});
 }
+
 
 cur_frm.cscript.non_editable_qty = function() {
 	frappe.call({
