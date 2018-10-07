@@ -100,7 +100,8 @@ class JournalEntry(AccountsController):
 			account_type = frappe.db.get_value("Account", d.account, "account_type")
 			if account_type in ["Receivable", "Payable"]:
 				if not (d.party_type and d.party):
-					frappe.throw(_("Row {0}: Party Type and Party is required for Receivable / Payable account {1}").format(d.idx, d.account))
+					# frappe.throw(_("Row {0}: Party Type and Party is required for Receivable / Payable account {1}").format(d.idx, d.account))
+					pass
 			elif d.party_type and d.party:
 				# frappe.throw(_("Row {0}: Party Type and Party is only applicable against Receivable / Payable account").format(d.idx))
 				# custom pass for dairy so as one can give loan to its customers and must receivable type
