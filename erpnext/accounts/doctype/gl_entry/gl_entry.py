@@ -50,11 +50,13 @@ class GLEntry(Document):
 		account_type = frappe.db.get_value("Account", self.account, "account_type")
 		if not (self.party_type and self.party):
 			if account_type == "Receivable":
-				frappe.throw(_("{0} {1}: Customer is required against Receivable account {2}")
-					.format(self.voucher_type, self.voucher_no, self.account))
+				# frappe.throw(_("{0} {1}: Customer is required against Receivable account {2}")
+				# 	.format(self.voucher_type, self.voucher_no, self.account))
+				pass
 			elif account_type == "Payable":
-				frappe.throw(_("{0} {1}: Supplier is required against Payable account {2}")
-					.format(self.voucher_type, self.voucher_no, self.account))
+				pass
+				# frappe.throw(_("{0} {1}: Supplier is required against Payable account {2}")
+				# 	.format(self.voucher_type, self.voucher_no, self.account))
 
 		# Zero value transaction is not allowed
 		if not (flt(self.debit) or flt(self.credit)):
