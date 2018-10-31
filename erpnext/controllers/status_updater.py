@@ -161,7 +161,6 @@ class StatusUpdater(Document):
 			for d in self.get_all_children():
 				if d.doctype == args['source_dt'] and d.get(args["join_field"]):
 					args['name'] = d.get(args['join_field'])
-
 					# get all qty where qty > target_field
 					item = frappe.db.sql("""select item_code, `{target_ref_field}`,
 						`{target_field}`, parenttype, parent from `tab{target_dt}`
@@ -276,31 +275,31 @@ class StatusUpdater(Document):
 
 	def _update_percent_field(self, args, update_modified=True):
 		"""Update percent field in parent transaction"""
-
 		self._update_modified(args, update_modified)
-
-		if args.get('target_parent_field'):
+		try:
+			if args.get('target_parent_field'):
+				frappe.db.sql("""update `tab%(target_parent_dt)s`
+					set %(target_parent_field)s = round(
+						ifnull((select
+							ifnull(sum(if(%(target_ref_field)s > %(target_field)s, abs(%(target_field)s), abs(%(target_ref_field)s))), 0)
+							/ sum(abs(%(target_ref_field)s)) * 100
+						from `tab%(target_dt)s` where parent="%(name)s"), 0), 2)
+						%(update_modified)s
+					where name='%(name)s'""" % args)
+		except Exception as e:
+			pass
+		# update field
+		if args.get('status_field'):
 			frappe.db.sql("""update `tab%(target_parent_dt)s`
-				set %(target_parent_field)s = round(
-					ifnull((select
-						ifnull(sum(if(%(target_ref_field)s > %(target_field)s, abs(%(target_field)s), abs(%(target_ref_field)s))), 0)
-						/ sum(abs(%(target_ref_field)s)) * 100
-					from `tab%(target_dt)s` where parent="%(name)s"), 0), 2)
-					%(update_modified)s
+				set %(status_field)s = if(%(target_parent_field)s<0.001,
+					'Not %(keyword)s', if(%(target_parent_field)s>=99.99,
+					'Fully %(keyword)s', 'Partly %(keyword)s'))
 				where name='%(name)s'""" % args)
 
-			# update field
-			if args.get('status_field'):
-				frappe.db.sql("""update `tab%(target_parent_dt)s`
-					set %(status_field)s = if(%(target_parent_field)s<0.001,
-						'Not %(keyword)s', if(%(target_parent_field)s>=99.99,
-						'Fully %(keyword)s', 'Partly %(keyword)s'))
-					where name='%(name)s'""" % args)
-
-			if update_modified:
-				target = frappe.get_doc(args["target_parent_dt"], args["name"])
-				target.set_status(update=True)
-				target.notify_update()
+		if update_modified:
+			target = frappe.get_doc(args["target_parent_dt"], args["name"])
+			target.set_status(update=True)
+			target.notify_update()
 
 	def _update_modified(self, args, update_modified):
 		args['update_modified'] = ''
